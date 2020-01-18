@@ -49,8 +49,8 @@ func FromJSONStruct(json JSON) *Instance {
 	return inst
 }
 
-func ToJSONStruct(inst *Instance) JSON {
-	json := JSON{}
+func ToJSONStruct(inst *Instance) *JSON {
+	json := new(JSON)
 	json.Id = inst.Id
 	json.Repo = inst.Repo
 	json.Name = inst.Name

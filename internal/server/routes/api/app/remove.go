@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -41,7 +42,7 @@ func removePost(writer http.ResponseWriter, req *http.Request) {
 	} else if body.Id != "" {
 		query = body.Id
 	} else {
-		writer.WriteHeader(400)
+		writeErrorResponse(writer, errors.New("Invalid arguments."))
 		return
 	}
 

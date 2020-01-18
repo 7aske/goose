@@ -4,13 +4,13 @@ import (
 	"../instance"
 	"../utils"
 	"fmt"
-	"github.com/pkg/errors"
+	"errors"
 	"os"
 	"os/exec"
 	"path"
 )
 
-func (d *Type) Install(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) Install(inst *instance.JSON) error {
 	switch inst.Backend {
 	case instance.Node:
 		return d.installNode(inst)
@@ -23,12 +23,12 @@ func (d *Type) Install(inst instance.JSON) (instance.JSON, error) {
 	case instance.Npm:
 		return d.installNpm(inst)
 	}
-	return inst, errors.New("backend not implemented")
+	return errors.New("backend not implemented")
 }
 
-func (d *Type) installNode(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) installNode(inst *instance.JSON) error {
 	if !utils.PathExists(path.Join(inst.Root, "package.json")) {
-		return instance.JSON{}, errors.New("package.json not found in instance root")
+		return errors.New("package.json not found in instance root")
 	}
 	npm := exec.Command("npm", "install")
 	npm.Dir = inst.Root
@@ -38,33 +38,33 @@ func (d *Type) installNode(inst instance.JSON) (instance.JSON, error) {
 	if err := npm.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			_, _ = fmt.Fprintln(os.Stderr, exitError)
-			return instance.JSON{}, err
+			return err
 		}
 	}
-	err = saveInstance(inst)
+	err = saveInstance(*inst)
 	if err != nil {
-		return instance.JSON{}, err
+		return err
 	}
-	return inst, nil
+	return nil
 
 }
 
-func (d *Type) installNpm(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) installNpm(inst *instance.JSON) error {
 
-	return inst, nil
+	return nil
 }
 
-func (d *Type) installPython(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) installPython(inst *instance.JSON) error {
 
-	return inst, nil
+	return nil
 }
 
-func (d *Type) installFlask(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) installFlask(inst *instance.JSON) error {
 
-	return inst, nil
+	return nil
 }
 
-func (d *Type) installWeb(inst instance.JSON) (instance.JSON, error) {
+func (d *Type) installWeb(inst *instance.JSON) error {
 
-	return inst, nil
+	return nil
 }

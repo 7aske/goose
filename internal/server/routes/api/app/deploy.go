@@ -5,7 +5,7 @@ import (
 	"../../../../instance"
 	"../../../utils"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
+	"errors"
 	"net/http"
 )
 
@@ -21,6 +21,7 @@ func deployPost(writer http.ResponseWriter, req *http.Request) {
 	jsonBody, err := utils.GetJsonStringMap(&req.Body)
 	if err != nil {
 		writeErrorResponse(writer, err)
+		return
 	}
 	repo := jsonBody["repo"]
 	backend := jsonBody["backend"]
@@ -28,24 +29,26 @@ func deployPost(writer http.ResponseWriter, req *http.Request) {
 
 	if repo == "" || backend == "" || hostname == "" {
 		writeErrorResponse(writer, errors.New("invalid arguments."))
+		return
 	}
 
-	inst := instance.New(repo, hostname, instance.Backend(backend))
+	inst := instance.ToJSONStruct(instance.New(repo, hostname, instance.Backend(backend)))
 
-	inst, err = deployer.Deployer.Deploy(inst)
+	err = deployer.Deployer.Deploy(inst)
 	if err != nil {
 		writeErrorResponse(writer, err)
+		return
+	}
+	err = deployer.Deployer.Install(inst)
+	if err != nil {
+		writeErrorResponse(writer, err)
+		return
 	}
 
-	inst, err = deployer.Deployer.Install(inst)
+	resp, err := utils.JsonStructToBody(inst)
 	if err != nil {
 		writeErrorResponse(writer, err)
-	}
-
-	instJson := instance.ToJSONStruct(inst)
-	resp, err := utils.JsonStructToBody(&instJson)
-	if err != nil {
-		writeErrorResponse(writer, err)
+		return
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

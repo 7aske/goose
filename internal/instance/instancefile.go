@@ -21,7 +21,7 @@ type JSON struct {
 }
 
 type File struct {
-	Instances []JSON
+	Instances []JSON `json:"instances"`
 }
 
 type IFile interface {
