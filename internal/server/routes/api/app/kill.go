@@ -19,11 +19,11 @@ var kill *mux.Router = nil
 
 func KillRoute(router *mux.Router) *mux.Router {
 	kill = router.PathPrefix("/kill").Subrouter()
-	kill.Methods("POST").HandlerFunc(killPost)
+	kill.Methods("PUT").HandlerFunc(killPut)
 	return kill
 }
 
-func killPost(writer http.ResponseWriter, req *http.Request) {
+func killPut(writer http.ResponseWriter, req *http.Request) {
 	body := RemoveBody{}
 	jsonBytes, err := ioutil.ReadAll(req.Body)
 	if err != nil {

@@ -20,11 +20,11 @@ var remove *mux.Router = nil
 
 func RemoveRoute(router *mux.Router) *mux.Router {
 	remove = router.PathPrefix("/remove").Subrouter()
-	remove.Methods("POST").HandlerFunc(removePost)
+	remove.Methods("DELETE").HandlerFunc(removeDelete)
 	return remove
 }
 
-func removePost(writer http.ResponseWriter, req *http.Request) {
+func removeDelete(writer http.ResponseWriter, req *http.Request) {
 	body := RemoveBody{}
 	jsonBytes, err := ioutil.ReadAll(req.Body)
 	if err != nil {

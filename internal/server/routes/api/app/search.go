@@ -5,7 +5,6 @@ import (
 	"../../../../instance"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -26,20 +25,21 @@ func SearchRoute(router *mux.Router) *mux.Router {
 	search.Methods("GET").HandlerFunc(searchGet)
 	return search
 }
+
 func searchGet(writer http.ResponseWriter, req *http.Request) {
-	body := SearchBody{}
-
-	jsonBytes, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		writer.WriteHeader(400)
-		return
-	}
-
-	err = json.Unmarshal(jsonBytes, &body)
-	if err != nil {
-		writer.WriteHeader(400)
-		return
-	}
+	//body := SearchBody{}
+	//
+	//jsonBytes, err := ioutil.ReadAll(req.Body)
+	//if err != nil {
+	//	writer.WriteHeader(400)
+	//	return
+	//}
+	//
+	//err = json.Unmarshal(jsonBytes, &body)
+	//if err != nil {
+	//	writer.WriteHeader(400)
+	//	return
+	//}
 
 	resp := SearchResponse{}
 

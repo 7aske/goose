@@ -18,11 +18,11 @@ var run *mux.Router = nil
 
 func RunRoute(router *mux.Router) *mux.Router {
 	run = router.PathPrefix("/run").Subrouter()
-	run.Methods("POST").HandlerFunc(runPost)
+	run.Methods("PUT").HandlerFunc(runPut)
 	return run
 }
 
-func runPost(writer http.ResponseWriter, req *http.Request) {
+func runPut(writer http.ResponseWriter, req *http.Request) {
 	body := RemoveBody{}
 	jsonBytes, err := ioutil.ReadAll(req.Body)
 	if err != nil {

@@ -15,6 +15,8 @@ func Route(router *mux.Router) *mux.Router {
 	SearchRoute(appRouter)
 	RunRoute(appRouter)
 	KillRoute(appRouter)
+	UpdateRoute(appRouter)
+	SettingsRoute(appRouter)
 	return appRouter
 }
 

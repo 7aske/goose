@@ -55,6 +55,7 @@ func (d *Type) Deploy(inst *instance.JSON) error {
 
 	inst.Id = shortid.MustGenerate()
 	inst.Deployed = time.Now()
+	inst.LastUpdated = time.Now()
 	err = d.addInstanceJSON(*inst)
 	if err != nil {
 		return err

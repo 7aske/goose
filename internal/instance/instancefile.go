@@ -14,7 +14,7 @@ type JSON struct {
 	Deployed    time.Time `json:"deployed"`
 	LastUpdated time.Time `json:"last_updated"`
 	LastRun     time.Time `json:"last_run"`
-	//Uptime      int64       `json:"uptime"`
+	Uptime      int64       `json:"uptime"`
 	Backend Backend `json:"backend"`
 	//Pid         int         `json:"pid"`
 	//Process     *os.Process `json:"process"`
