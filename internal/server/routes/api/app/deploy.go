@@ -1,7 +1,6 @@
 package app
 
 import (
-	"../../../../deployer"
 	"../../../utils"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -18,7 +17,6 @@ func DeployRoute(router *mux.Router) *mux.Router {
 
 func deployPost(writer http.ResponseWriter, request *http.Request) {
 	body := utils.GetJsonMap(&request.Body)
-	fmt.Println(deployer.Deployer.Instances)
 	for k, v := range body {
 		fmt.Printf("%v %v\n", k, v)
 	}

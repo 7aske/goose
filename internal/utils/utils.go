@@ -26,6 +26,15 @@ func ContainsFile(q string, dir *[]os.FileInfo) bool {
 	return false
 }
 
+func ContainsInstance(q string, dir *[]instance.JSON) bool {
+	for _, inst := range *dir {
+		if inst.Name == q {
+			return true
+		}
+	}
+	return false
+}
+
 func IndexOfInstance(instance instance.JSON, instances *[]instance.JSON) int {
 	for i, inst := range *instances {
 		if inst.Name == instance.Name || inst.Id == instance.Id {

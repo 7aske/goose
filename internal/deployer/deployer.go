@@ -8,12 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
 	"path"
 )
 
 type Type struct {
-	Instances []instance.JSON
-	Running   []*instance.Instance
+	Running []*instance.Instance
 }
 
 var Deployer *Type = nil
@@ -22,12 +23,15 @@ var Config *config.Type = nil
 func New() *Type {
 	ret := new(Type)
 	Config = config.Get()
-	ret.Instances = []instance.JSON{}
-	ret.updateInstancesFile()
+	err := updateInstancesFile()
+	if err != nil {
+		log.Fatal(err)
+	}
 	Deployer = ret
 	return ret
 }
-func (d *Type) GetDeployedInstances() ([]instance.JSON, error) {
+
+func GetDeployedInstances() ([]instance.JSON, error) {
 	pth := path.Join(Config.Deployer.Root, "instances.json")
 	f, err := ioutil.ReadFile(pth)
 	if err != nil {
@@ -41,10 +45,15 @@ func (d *Type) GetDeployedInstances() ([]instance.JSON, error) {
 	return instances.Instances, nil
 }
 
-func (d *Type) updateInstancesFile() error {
+// Compares between JSON file and deployed instances in instance folder and removes set difference of both from each.
+// Should be called whenever instance is added or removed
+func updateInstancesFile() error {
 	pth := path.Join(Config.Deployer.Root, "instances.json")
-	folders, _ := ioutil.ReadDir(path.Join(Config.Deployer.AppRoot))
-	instances, err := d.GetDeployedInstances()
+	folders, err := ioutil.ReadDir(path.Join(Config.Deployer.AppRoot))
+	if err != nil {
+		return err
+	}
+	instances, err := GetDeployedInstances()
 	if err != nil {
 		return err
 	}
@@ -54,21 +63,26 @@ func (d *Type) updateInstancesFile() error {
 			instances = append(instances[:i], instances[i+1:]...)
 		}
 	}
+	for _, folder := range folders {
+		if !utils.ContainsInstance(folder.Name(), &instances) {
+			fmt.Println("not found ", folder.Name())
+			err = os.RemoveAll(path.Join(Config.Deployer.AppRoot, folder.Name()))
+			if err != nil {
+				return err
+			}
+		}
+	}
 	updated, err := json.Marshal(instance.File{Instances: instances})
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(pth, updated, 0775)
-	if err != nil {
-		return err
-	}
-	return nil
+	return ioutil.WriteFile(pth, updated, 0775)
 }
 
-func (d *Type) saveInstance(inst instance.JSON) error {
+func saveInstance(inst instance.JSON) error {
 	pth := path.Join(Config.Deployer.Root, "instances.json")
 
-	instances, _ := d.GetDeployedInstances()
+	instances, _ := GetDeployedInstances()
 	if pos := utils.IndexOfInstance(inst, &instances); pos == -1 {
 		instances = append(instances, inst)
 	} else {
@@ -79,28 +93,43 @@ func (d *Type) saveInstance(inst instance.JSON) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(pth, apps, 0775)
+	return ioutil.WriteFile(pth, apps, 0775)
+}
+
+func removeInstance(inst instance.JSON) error {
+	pth := path.Join(Config.Deployer.Root, "instances.json")
+
+	instances, _ := GetDeployedInstances()
+	if pos := utils.IndexOfInstance(inst, &instances); pos == -1 {
+		return errors.New("cannot remove instance - doesn't exist")
+	} else {
+		instances = append(instances[:pos], instances[pos+1:]...)
+	}
+	apps, err := json.Marshal(instance.File{Instances: instances})
 	if err != nil {
 		return err
 	}
-	return nil
+	return ioutil.WriteFile(pth, apps, 0775)
 }
 
 func (d *Type) RemoveInstanceJSON(instance instance.JSON) error {
-	for i, inst := range d.Instances {
+	instances, err := GetDeployedInstances()
+	if err != nil {
+		return err
+	}
+	for _, inst := range instances {
 		if inst.Name == instance.Name || instance.Id == inst.Id {
-			d.Instances = append(d.Instances[:i], d.Instances[i+1:]...)
-			return nil
+			return removeInstance(inst)
 		}
 	}
 	return errors.New("instance not found")
 }
 
 func (d *Type) AddInstanceJSON(instance instance.JSON) error {
-	d.Instances = append(d.Instances, instance)
-	return d.updateInstancesFile()
+	return saveInstance(instance)
 }
 
+// Removes RUNNING instance
 func (d *Type) RemoveInstance(instance *instance.Instance) error {
 	for i, inst := range d.Running {
 		if inst.Name == instance.Name || instance.Id == inst.Id {
@@ -111,6 +140,7 @@ func (d *Type) RemoveInstance(instance *instance.Instance) error {
 	return errors.New("instance not found")
 }
 
+// Adds RUNNING instance
 func (d *Type) AddInstance(instance *instance.Instance) {
 	d.Running = append(d.Running, instance)
 }

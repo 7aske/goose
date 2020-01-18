@@ -41,7 +41,7 @@ func (d *Type) installNode(inst *instance.Instance) (*instance.Instance, error) 
 			return nil, err
 		}
 	}
-	err = d.saveInstance(instance.ToJSON(inst))
+	err = saveInstance(instance.ToJSON(inst))
 	if err != nil {
 		return nil, err
 	}

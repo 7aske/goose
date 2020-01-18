@@ -48,7 +48,6 @@ func (d *Type) Deploy(inst *instance.Instance) (*instance.Instance, error) {
 	inst.Id = shortid.MustGenerate()
 	inst.Deployed = time.Now()
 	err = d.AddInstanceJSON(instance.ToJSON(inst))
-	err = d.saveInstance(instance.ToJSON(inst))
 	if err != nil {
 		return nil, err
 	}
