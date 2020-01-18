@@ -1,0 +1,14 @@
+{
+  "id": "yGr43lDWg",
+  "repo": "https://github.com/goose/blog",
+  "name": "blog",
+  "root": "apps/blog",
+  "port": 36323,
+  "hostname": "blog.goose.com",
+  "deployed": "2019-08-08T08:36:29.463711988Z",
+  "last_updated": "2019-10-04T14:11:43.308594989Z",
+  "last_run": "2019-11-03T19:12:56.790962416Z",
+  "uptime": "1",
+  "backend": "flask",
+  "pid": -1
+}
