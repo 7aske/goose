@@ -2,7 +2,6 @@ package app
 
 import (
 	"../../../../deployer"
-	"../../../../instance"
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
@@ -52,19 +51,24 @@ func killPost(writer http.ResponseWriter, req *http.Request) {
 		writeErrorResponse(writer, errors.New("instance not found"))
 		return
 	} else {
-		err = deployer.Deployer.Kill(instance.FromJSONStruct(depl))
-		if err != nil {
-			writeErrorResponse(writer, err)
+		if inst, ok := deployer.GetRunningInstanceById(depl.Id); ok {
+			err = deployer.Deployer.Kill(inst)
+			if err != nil {
+				writeErrorResponse(writer, err)
+				return
+			}
+			resp := struct {
+				Message string `json:"message"`
+				Query   string `json:"query"`
+			}{"instance killed", query}
+			bytes, _ := json.Marshal(&resp)
+			writer.Header().Add("Content-Type", "application/json")
+			writer.WriteHeader(400)
+			writer.Write(bytes)
+			return
+		} else {
+			writeErrorResponse(writer, errors.New("instance not running"))
 			return
 		}
-		resp := struct {
-			Message string `json:"message"`
-			Query   string `json:"query"`
-		}{"instance killed", query}
-		bytes, _ := json.Marshal(&resp)
-		writer.Header().Add("Content-Type", "application/json")
-		writer.WriteHeader(400)
-		writer.Write(bytes)
-		return
 	}
 }

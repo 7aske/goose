@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 )
 
 type Type struct {
@@ -51,24 +52,71 @@ func GetDeployedInstance(query string) (instance.JSON, bool) {
 		return instance.JSON{}, false
 	}
 	for _, inst := range instances {
-		if inst.Name == query || inst.Id == query {
+		if strings.Contains(inst.Name, query) || strings.Contains(inst.Id, query) {
 			return inst, true
 		}
 	}
 	return instance.JSON{}, false
 }
 
-func GetRunningInstances() []*instance.Instance {
-	return Deployer.Running
+func GetDeployedInstanceById(id string) (instance.JSON, bool) {
+	instances, err := GetDeployedInstances()
+	if err != nil {
+		return instance.JSON{}, false
+	}
+	for _, inst := range instances {
+		if inst.Id == id {
+			return inst, true
+		}
+	}
+	return instance.JSON{}, false
 }
 
-func GetRunningInstance(query *instance.Instance) (*instance.Instance, bool) {
-	for _, inst := range Deployer.Running {
-		if inst.Name == query.Name || inst.Id == query.Id || inst.Pid == query.Pid {
+func GetDeployedInstanceByName(name string) (instance.JSON, bool) {
+	instances, err := GetDeployedInstances()
+	if err != nil {
+		return instance.JSON{}, false
+	}
+	for _, inst := range instances {
+		if inst.Name == name {
+			return inst, true
+		}
+	}
+	return instance.JSON{}, false
+}
+
+func GetRunningInstance(query string) (*instance.Instance, bool) {
+	instances := Deployer.Running
+	for _, inst := range instances {
+		if strings.Contains(inst.Name, query) || strings.Contains(inst.Id, query) {
 			return inst, true
 		}
 	}
 	return nil, false
+}
+
+func GetRunningInstanceById(id string) (*instance.Instance, bool) {
+	instances := Deployer.Running
+	for _, inst := range instances {
+		if inst.Id == id {
+			return inst, true
+		}
+	}
+	return nil, false
+}
+
+func GetRunningInstanceByName(name string) (*instance.Instance, bool) {
+	instances := Deployer.Running
+	for _, inst := range instances {
+		if inst.Name == name {
+			return inst, true
+		}
+	}
+	return nil, false
+}
+
+func GetRunningInstances() []*instance.Instance {
+	return Deployer.Running
 }
 
 // Compares between JSON file and deployed instances in instance folder and removes set difference of both from each.

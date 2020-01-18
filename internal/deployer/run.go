@@ -13,7 +13,8 @@ import (
 )
 
 func (d *Type) Run(inst instance.JSON) (*instance.Instance, error) {
-	if _, ok := GetRunningInstance(instance.FromJSONStruct(inst)); ok {
+	depl := instance.FromJSONStruct(inst)
+	if _, ok := GetRunningInstance(depl.Id); ok {
 		return nil, errors.New("instance already running")
 	}
 	switch inst.Backend {
