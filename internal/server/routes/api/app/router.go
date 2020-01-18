@@ -13,6 +13,8 @@ func Route(router *mux.Router) *mux.Router {
 	DeployRoute(appRouter)
 	RemoveRoute(appRouter)
 	SearchRoute(appRouter)
+	RunRoute(appRouter)
+	KillRoute(appRouter)
 	return appRouter
 }
 

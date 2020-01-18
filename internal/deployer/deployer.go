@@ -58,6 +58,19 @@ func GetDeployedInstance(query string) (instance.JSON, bool) {
 	return instance.JSON{}, false
 }
 
+func GetRunningInstances() []*instance.Instance {
+	return Deployer.Running
+}
+
+func GetRunningInstance(query *instance.Instance) (*instance.Instance, bool) {
+	for _, inst := range Deployer.Running {
+		if inst.Name == query.Name || inst.Id == query.Id || inst.Pid == query.Pid {
+			return inst, true
+		}
+	}
+	return nil, false
+}
+
 // Compares between JSON file and deployed instances in instance folder and removes set difference of both from each.
 // Should be called whenever instance is added or removed
 func updateInstancesFile() error {

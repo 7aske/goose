@@ -4,8 +4,8 @@ import (
 	"../../../../deployer"
 	"../../../../instance"
 	"../../../utils"
-	"github.com/gorilla/mux"
 	"errors"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func deployPost(writer http.ResponseWriter, req *http.Request) {
 	hostname := jsonBody["hostname"]
 
 	if repo == "" || backend == "" || hostname == "" {
-		writeErrorResponse(writer, errors.New("invalid arguments."))
+		writeErrorResponse(writer, errors.New("invalid arguments"))
 		return
 	}
 
@@ -39,6 +39,7 @@ func deployPost(writer http.ResponseWriter, req *http.Request) {
 		writeErrorResponse(writer, err)
 		return
 	}
+
 	err = deployer.Deployer.Install(inst)
 	if err != nil {
 		writeErrorResponse(writer, err)

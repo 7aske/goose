@@ -7,19 +7,19 @@ import (
 )
 
 type Instance struct {
-	Id          string
-	Repo        string
-	Name        string
-	Root        string
-	Port        uint
-	Hostname    string
-	Deployed    time.Time
-	LastUpdated time.Time
-	LastRun     time.Time
-	Uptime      int64
-	Backend     Backend
-	Pid         int
-	Process     *os.Process
+	Id          string    `json:"id"`
+	Repo        string    `json:"repo"`
+	Name        string    `json:"name"`
+	Root        string    `json:"root"`
+	Port        uint      `json:"port"`
+	Hostname    string    `json:"hostname"`
+	Deployed    time.Time `json:"deployed"`
+	LastUpdated time.Time `json:"last_updated"`
+	LastRun     time.Time `json:"last_run"`
+	Uptime      int64     `json:"uptime"`
+	Backend     Backend   `json:"backend"`
+	Pid         int       `json:"pid"`
+	process     *os.Process
 }
 
 func New(repo string, hostname string, backend Backend) *Instance {
@@ -45,7 +45,7 @@ func FromJSONStruct(json JSON) *Instance {
 	inst.Uptime = 0
 	inst.Backend = json.Backend
 	inst.Pid = -1
-	inst.Process = nil
+	inst.process = nil
 	return inst
 }
 
@@ -62,4 +62,12 @@ func ToJSONStruct(inst *Instance) *JSON {
 	json.LastRun = inst.LastRun
 	json.Backend = inst.Backend
 	return json
+}
+
+func (d *Instance) Process() *os.Process {
+	return d.process
+}
+
+func (d *Instance) SetProcess(proc *os.Process)  {
+	d.process = proc
 }

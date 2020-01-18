@@ -42,7 +42,7 @@ func removePost(writer http.ResponseWriter, req *http.Request) {
 	} else if body.Id != "" {
 		query = body.Id
 	} else {
-		writeErrorResponse(writer, errors.New("Invalid arguments."))
+		writeErrorResponse(writer, errors.New("invalid arguments"))
 		return
 	}
 
@@ -56,7 +56,7 @@ func removePost(writer http.ResponseWriter, req *http.Request) {
 			resp := struct {
 				Message string `json:"message"`
 				Query   string `json:"query"`
-			}{"Instance removed", query}
+			}{"instance removed", query}
 			bytes, _ := json.Marshal(&resp)
 			writer.Header().Add("Content-Type", "application/json")
 			writer.WriteHeader(200)

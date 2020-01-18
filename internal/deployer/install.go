@@ -2,9 +2,10 @@ package deployer
 
 import (
 	"../instance"
-	"../utils"
-	"fmt"
+	dutils "./utils"
+	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -27,19 +28,20 @@ func (d *Type) Install(inst *instance.JSON) error {
 }
 
 func (d *Type) installNode(inst *instance.JSON) error {
-	if !utils.PathExists(path.Join(inst.Root, "package.json")) {
-		return errors.New("package.json not found in instance root")
+	err := dutils.VerifyPackageJson(path.Join(inst.Root, "package.json"))
+	if err != nil {
+		return err
 	}
 	npm := exec.Command("npm", "install")
 	npm.Dir = inst.Root
 	npm.Stdout = os.Stdout
-	npm.Stderr = os.Stderr
-	err := npm.Run()
+	var errBuf bytes.Buffer
+	npm.Stderr = &errBuf
+	err = npm.Run()
 	if err := npm.Run(); err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			_, _ = fmt.Fprintln(os.Stderr, exitError)
-			return err
-		}
+		errStr := string(errBuf.Bytes())
+		_, _ = fmt.Fprintln(os.Stderr, errStr)
+		return errors.New(errStr)
 	}
 	err = saveInstance(*inst)
 	if err != nil {
@@ -50,8 +52,7 @@ func (d *Type) installNode(inst *instance.JSON) error {
 }
 
 func (d *Type) installNpm(inst *instance.JSON) error {
-
-	return nil
+	return d.installNode(inst)
 }
 
 func (d *Type) installPython(inst *instance.JSON) error {

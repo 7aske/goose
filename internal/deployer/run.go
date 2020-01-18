@@ -1,42 +1,84 @@
 package deployer
 
 import (
+	"../deployer/utils"
 	"../instance"
+	"../port"
 	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+	"path"
+	"time"
 )
 
-func (d *Type) Run(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) Run(inst instance.JSON) (*instance.Instance, error) {
+	if _, ok := GetRunningInstance(instance.FromJSONStruct(inst)); ok {
+		return nil, errors.New("instance already running")
+	}
 	switch inst.Backend {
 	case instance.Node:
-		return runNode(inst)
+		return d.runNode(inst)
 	case instance.Python:
-		return runPython(inst)
+		return d.runPython(inst)
 	case instance.Web:
-		return runWeb(inst)
+		return d.runWeb(inst)
 	case instance.Flask:
-		return runFlask(inst)
+		return d.runFlask(inst)
 	case instance.Npm:
-		return runNpm(inst)
+		return d.runNpm(inst)
 	}
-	return inst, errors.New("backend not implemented")
+	return nil, errors.New("backend not implemented")
 }
 
-func runNode(inst *instance.Instance) (*instance.Instance, error) {
-	return inst, nil
+func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
+	packageJsonPath := path.Join(inst.Root, "package.json")
+	err := utils.VerifyPackageJson(packageJsonPath)
+	if inst.Port == 0 {
+		p, _ := port.New()
+		inst.Port = uint(p)
+	}
+	node := exec.Command("node", utils.GetPackageJsonMain(packageJsonPath))
+	node.Dir = inst.Root
+	node.Env = os.Environ()
+	node.Env = append(node.Env, fmt.Sprintf("PORT=%d", inst.Port))
+	node.Stdout = os.Stdout
+	node.Stderr = os.Stderr
+	err = node.Start()
+	if err != nil {
+		return nil, err
+	}
+	running := instance.FromJSONStruct(inst)
+	//go func() {
+	//	n, _ := node.Process.Wait()
+	//	d.RemoveApp(inst)
+	//	d.logger.Log(fmt.Sprintf("run - app %s exited with code %d\r\n", inst.GetName(), n.ExitCode()))
+	//
+	//}()
+	running.Pid = node.Process.Pid
+	running.SetProcess(node.Process)
+	inst.LastRun = time.Now()
+	d.addInstance(running)
+	err = d.addInstanceJSON(inst)
+	if err != nil {
+		_ = running.Process().Kill()
+		return nil, errors.New("unable to save instance metadata json")
+	}
+	return running, nil
 }
 
-func runNpm(inst *instance.Instance) (*instance.Instance, error) {
-	return inst, nil
+func (d *Type) runNpm(inst instance.JSON) (*instance.Instance, error) {
+	return instance.FromJSONStruct(inst), nil
 }
 
-func runPython(inst *instance.Instance) (*instance.Instance, error) {
-	return inst, nil
+func (d *Type) runPython(inst instance.JSON) (*instance.Instance, error) {
+	return instance.FromJSONStruct(inst), nil
 }
 
-func runFlask(inst *instance.Instance) (*instance.Instance, error) {
-	return inst, nil
+func (d *Type) runFlask(inst instance.JSON) (*instance.Instance, error) {
+	return instance.FromJSONStruct(inst), nil
 }
 
-func runWeb(inst *instance.Instance) (*instance.Instance, error) {
-	return inst, nil
+func (d *Type) runWeb(inst instance.JSON) (*instance.Instance, error) {
+	return instance.FromJSONStruct(inst), nil
 }

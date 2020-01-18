@@ -4,6 +4,7 @@ import (
 	"../config"
 	"../instance"
 	"bytes"
+	"fmt"
 	"github.com/pkg/errors"
 	"os"
 	"os/exec"
@@ -21,7 +22,9 @@ func (d *Type) Update(inst *instance.JSON) error {
 	var errBuf bytes.Buffer
 	gitCmd.Stderr = &errBuf
 	if err := gitCmd.Run(); err != nil {
-		return errors.New(string(errBuf.Bytes()))
+		errStr := string(errBuf.Bytes())
+		_, _ = fmt.Fprintln(os.Stderr, errStr)
+		return errors.New(errStr)
 	}
 	inst.LastUpdated = time.Now()
 
