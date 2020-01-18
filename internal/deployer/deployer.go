@@ -45,6 +45,19 @@ func GetDeployedInstances() ([]instance.JSON, error) {
 	return instances.Instances, nil
 }
 
+func GetDeployedInstance(query string) (instance.JSON, bool) {
+	instances, err := GetDeployedInstances()
+	if err != nil {
+		return instance.JSON{}, false
+	}
+	for _, inst := range instances {
+		if inst.Name == query || inst.Id == query {
+			return inst, true
+		}
+	}
+	return instance.JSON{}, false
+}
+
 // Compares between JSON file and deployed instances in instance folder and removes set difference of both from each.
 // Should be called whenever instance is added or removed
 func updateInstancesFile() error {
@@ -112,7 +125,7 @@ func removeInstance(inst instance.JSON) error {
 	return ioutil.WriteFile(pth, apps, 0775)
 }
 
-func (d *Type) RemoveInstanceJSON(instance instance.JSON) error {
+func (d *Type) removeInstanceJSON(instance instance.JSON) error {
 	instances, err := GetDeployedInstances()
 	if err != nil {
 		return err
@@ -125,12 +138,12 @@ func (d *Type) RemoveInstanceJSON(instance instance.JSON) error {
 	return errors.New("instance not found")
 }
 
-func (d *Type) AddInstanceJSON(instance instance.JSON) error {
+func (d *Type) addInstanceJSON(instance instance.JSON) error {
 	return saveInstance(instance)
 }
 
 // Removes RUNNING instance
-func (d *Type) RemoveInstance(instance *instance.Instance) error {
+func (d *Type) removeInstance(instance *instance.Instance) error {
 	for i, inst := range d.Running {
 		if inst.Name == instance.Name || instance.Id == inst.Id {
 			d.Running = append(d.Running[:i], d.Running[i+1:]...)
@@ -141,6 +154,6 @@ func (d *Type) RemoveInstance(instance *instance.Instance) error {
 }
 
 // Adds RUNNING instance
-func (d *Type) AddInstance(instance *instance.Instance) {
+func (d *Type) addInstance(instance *instance.Instance) {
 	d.Running = append(d.Running, instance)
 }

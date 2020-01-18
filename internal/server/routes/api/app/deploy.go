@@ -1,9 +1,11 @@
 package app
 
 import (
+	"../../../../deployer"
+	"../../../../instance"
 	"../../../utils"
-	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"net/http"
 )
 
@@ -15,10 +17,37 @@ func DeployRoute(router *mux.Router) *mux.Router {
 	return deploy
 }
 
-func deployPost(writer http.ResponseWriter, request *http.Request) {
-	body := utils.GetJsonMap(&request.Body)
-	for k, v := range body {
-		fmt.Printf("%v %v\n", k, v)
+func deployPost(writer http.ResponseWriter, req *http.Request) {
+	jsonBody, err := utils.GetJsonStringMap(&req.Body)
+	if err != nil {
+		writeErrorResponse(writer, err)
 	}
-	writer.WriteHeader(200)
+	repo := jsonBody["repo"]
+	backend := jsonBody["backend"]
+	hostname := jsonBody["hostname"]
+
+	if repo == "" || backend == "" || hostname == "" {
+		writeErrorResponse(writer, errors.New("invalid arguments."))
+	}
+
+	inst := instance.New(repo, hostname, instance.Backend(backend))
+
+	inst, err = deployer.Deployer.Deploy(inst)
+	if err != nil {
+		writeErrorResponse(writer, err)
+	}
+
+	inst, err = deployer.Deployer.Install(inst)
+	if err != nil {
+		writeErrorResponse(writer, err)
+	}
+
+	instJson := instance.ToJSONStruct(inst)
+	resp, err := utils.JsonStructToBody(&instJson)
+	if err != nil {
+		writeErrorResponse(writer, err)
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	writer.Write(resp)
 }

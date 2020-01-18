@@ -25,6 +25,6 @@ type File struct {
 }
 
 type IFile interface {
-	RemoveInstanceJSON(instance JSON) error
+	removeInstanceJSON(instance JSON) error
 	AddInstanceJSON(instance JSON) error
 }

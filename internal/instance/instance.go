@@ -31,7 +31,7 @@ func New(repo string, hostname string, backend Backend) *Instance {
 	return inst
 }
 
-func FromJSON(json JSON) *Instance {
+func FromJSONStruct(json JSON) *Instance {
 	inst := new(Instance)
 	inst.Id = json.Id
 	inst.Repo = json.Repo
@@ -49,7 +49,7 @@ func FromJSON(json JSON) *Instance {
 	return inst
 }
 
-func ToJSON(inst *Instance) JSON {
+func ToJSONStruct(inst *Instance) JSON {
 	json := JSON{}
 	json.Id = inst.Id
 	json.Repo = inst.Repo

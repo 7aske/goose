@@ -31,9 +31,9 @@ func New() *Goose {
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
-	inst := instance.New("https://github.com/7aske/player-database", "127.0.0.1", instance.Node)
-	inst, _ = Deployer.Deploy(inst)
-	_, _ = Deployer.Install(inst)
+	//inst := instance.New("https://github.com/7aske/player-database", "127.0.0.1", instance.Node)
+	//inst, _ = Deployer.Deploy(inst)
+	//_, _ = Deployer.Install(inst)
 	server.Route()
 	if goose == nil {
 		goose = new(Goose)

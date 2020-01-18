@@ -10,7 +10,7 @@ import (
 	"path"
 )
 
-func (d *Type) Install(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) Install(inst instance.JSON) (instance.JSON, error) {
 	switch inst.Backend {
 	case instance.Node:
 		return d.installNode(inst)
@@ -26,9 +26,9 @@ func (d *Type) Install(inst *instance.Instance) (*instance.Instance, error) {
 	return inst, errors.New("backend not implemented")
 }
 
-func (d *Type) installNode(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) installNode(inst instance.JSON) (instance.JSON, error) {
 	if !utils.PathExists(path.Join(inst.Root, "package.json")) {
-		return nil, errors.New("package.json not found in instance root")
+		return instance.JSON{}, errors.New("package.json not found in instance root")
 	}
 	npm := exec.Command("npm", "install")
 	npm.Dir = inst.Root
@@ -38,33 +38,33 @@ func (d *Type) installNode(inst *instance.Instance) (*instance.Instance, error) 
 	if err := npm.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			_, _ = fmt.Fprintln(os.Stderr, exitError)
-			return nil, err
+			return instance.JSON{}, err
 		}
 	}
-	err = saveInstance(instance.ToJSON(inst))
+	err = saveInstance(inst)
 	if err != nil {
-		return nil, err
+		return instance.JSON{}, err
 	}
 	return inst, nil
 
 }
 
-func (d *Type) installNpm(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) installNpm(inst instance.JSON) (instance.JSON, error) {
 
 	return inst, nil
 }
 
-func (d *Type) installPython(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) installPython(inst instance.JSON) (instance.JSON, error) {
 
 	return inst, nil
 }
 
-func (d *Type) installFlask(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) installFlask(inst instance.JSON) (instance.JSON, error) {
 
 	return inst, nil
 }
 
-func (d *Type) installWeb(inst *instance.Instance) (*instance.Instance, error) {
+func (d *Type) installWeb(inst instance.JSON) (instance.JSON, error) {
 
 	return inst, nil
 }
