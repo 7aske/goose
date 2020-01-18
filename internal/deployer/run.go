@@ -1,7 +1,7 @@
 package deployer
 
 import (
-	"../deployer/utils"
+	dutils "../deployer/utils"
 	"../instance"
 	"../port"
 	"errors"
@@ -34,12 +34,12 @@ func (d *Type) Run(inst instance.JSON) (*instance.Instance, error) {
 
 func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 	packageJsonPath := path.Join(inst.Root, "package.json")
-	err := utils.VerifyPackageJson(packageJsonPath)
+	err := dutils.VerifyPackageJson(packageJsonPath)
 	if inst.Port == 0 {
 		p, _ := port.New()
 		inst.Port = uint(p)
 	}
-	node := exec.Command("node", utils.GetPackageJsonMain(packageJsonPath))
+	node := exec.Command("node", dutils.GetPackageJsonMain(packageJsonPath))
 	node.Dir = inst.Root
 	node.Env = os.Environ()
 	node.Env = append(node.Env, fmt.Sprintf("PORT=%d", inst.Port))
@@ -69,7 +69,24 @@ func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 }
 
 func (d *Type) runNpm(inst instance.JSON) (*instance.Instance, error) {
-	return instance.FromJSONStruct(inst), nil
+	packageJsonPath := path.Join(inst.Root, "package.json")
+	err := dutils.VerifyPackageJsonFieldList(packageJsonPath, []string{"start"})
+	if err != nil {
+		return nil, err
+	}
+
+	env := os.Environ()
+	env = append(env, []string{fmt.Sprintf("PORT=%d", inst.Port)}...)
+	proc, err := dutils.StartNpmScript([]string{"run", "start"}, inst.Root, env)
+	if err != nil {
+		return nil, err
+	}
+
+	running := instance.FromJSONStruct(inst)
+	running.SetProcess(proc)
+	running.Pid = proc.Pid
+	d.addInstance(running)
+	return running, nil
 }
 
 func (d *Type) runPython(inst instance.JSON) (*instance.Instance, error) {

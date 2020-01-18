@@ -3,11 +3,9 @@ package deployer
 import (
 	"../instance"
 	dutils "./utils"
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 )
 
@@ -32,17 +30,7 @@ func (d *Type) installNode(inst *instance.JSON) error {
 	if err != nil {
 		return err
 	}
-	npm := exec.Command("npm", "install")
-	npm.Dir = inst.Root
-	npm.Stdout = os.Stdout
-	var errBuf bytes.Buffer
-	npm.Stderr = &errBuf
-	err = npm.Run()
-	if err := npm.Run(); err != nil {
-		errStr := string(errBuf.Bytes())
-		_, _ = fmt.Fprintln(os.Stderr, errStr)
-		return errors.New(errStr)
-	}
+	err = dutils.RunNpmScript([]string{"install"}, inst.Root, []string{})
 	err = saveInstance(*inst)
 	if err != nil {
 		return err
@@ -52,7 +40,26 @@ func (d *Type) installNode(inst *instance.JSON) error {
 }
 
 func (d *Type) installNpm(inst *instance.JSON) error {
-	return d.installNode(inst)
+	packageJsonPath := path.Join(inst.Root, "package.json")
+	err := dutils.VerifyPackageJson(packageJsonPath)
+	if err != nil {
+		return err
+	}
+
+	err = dutils.RunNpmScript([]string{"install"}, inst.Root, []string{})
+	if err != nil {
+		return err
+	}
+
+	if err = dutils.VerifyPackageJsonFieldList(packageJsonPath, []string{"build"}); err != nil {
+		_, _ = fmt.Fprint(os.Stderr, "package.json missing build 'script'")
+	} else {
+		err = dutils.RunNpmScript([]string{"run", "build"}, inst.Root, []string{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (d *Type) installPython(inst *instance.JSON) error {
