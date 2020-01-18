@@ -32,7 +32,6 @@ func (d *Type) Deploy(inst *instance.JSON) error {
 		inst.Port = uint(p)
 	}
 
-	// TODO instance new
 	gitCmd := exec.Command("git", "-C", config.Get().Deployer.AppRoot, "clone", repo)
 	gitCmd.Stdin = nil
 	gitCmd.Stdout = os.Stdout

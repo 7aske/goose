@@ -6,13 +6,14 @@ import (
 	"net/http"
 )
 
-var app *mux.Router = nil
+var appRouter *mux.Router = nil
 
 func Route(router *mux.Router) *mux.Router {
-	app = router.PathPrefix("/app").Subrouter()
-	DeployRoute(app)
-	RemoveRoute(app)
-	return app
+	appRouter = router.PathPrefix("/app").Subrouter()
+	DeployRoute(appRouter)
+	RemoveRoute(appRouter)
+	SearchRoute(appRouter)
+	return appRouter
 }
 
 func writeErrorResponse(writer http.ResponseWriter, err error) {

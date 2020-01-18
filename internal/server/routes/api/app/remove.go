@@ -68,7 +68,7 @@ func removePost(writer http.ResponseWriter, req *http.Request) {
 		resp := struct {
 			Message string `json:"message"`
 			Query   string `json:"query"`
-		}{"Instance not found.", query}
+		}{"instance not found", query}
 		bytes, _ := json.Marshal(&resp)
 		writer.Header().Add("Content-Type", "application/json")
 		writer.WriteHeader(400)
