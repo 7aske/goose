@@ -1,6 +1,8 @@
 package utils
 
-import "regexp"
+import (
+	"regexp"
+)
 
 func GetNameFromRepo(repo string) string {
 	reg, _ := regexp.Compile("([^/]+$)")

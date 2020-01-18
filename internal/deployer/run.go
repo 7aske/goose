@@ -50,12 +50,7 @@ func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 		return nil, err
 	}
 	running := instance.FromJSONStruct(inst)
-	//go func() {
-	//	n, _ := node.Process.Wait()
-	//	d.RemoveApp(inst)
-	//	d.logger.Log(fmt.Sprintf("run - app %s exited with code %d\r\n", inst.GetName(), n.ExitCode()))
-	//
-	//}()
+
 	running.Pid = node.Process.Pid
 	running.SetProcess(node.Process)
 	inst.LastRun = time.Now()
@@ -65,6 +60,7 @@ func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 		_ = running.Process().Kill()
 		return nil, errors.New("unable to save instance metadata json")
 	}
+	go AddExitListener(running, d)
 	return running, nil
 }
 
@@ -86,6 +82,12 @@ func (d *Type) runNpm(inst instance.JSON) (*instance.Instance, error) {
 	running.SetProcess(proc)
 	running.Pid = proc.Pid
 	d.addInstance(running)
+	err = d.addInstanceJSON(inst)
+	if err != nil {
+		_ = running.Process().Kill()
+		return nil, errors.New("unable to save instance metadata json")
+	}
+	go AddExitListener(running, d)
 	return running, nil
 }
 

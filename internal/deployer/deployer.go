@@ -218,3 +218,10 @@ func (d *Type) removeInstance(instance *instance.Instance) error {
 func (d *Type) addInstance(instance *instance.Instance) {
 	d.Running = append(d.Running, instance)
 }
+
+func AddExitListener(instance *instance.Instance, d *Type) {
+	n, _ := instance.Process().Wait()
+	_ = d.removeInstance(instance)
+	_, _ = fmt.Fprintf(os.Stderr, "instance '%s' exited with code %d\r\n", instance.Name, n.ExitCode())
+
+}
