@@ -20,13 +20,10 @@ type UpdateResponse struct {
 	Instance instance.JSON `json:"instance"`
 }
 
-var update *mux.Router = nil
-
-func UpdateRoute(router *mux.Router) *mux.Router {
-	update = router.PathPrefix("/update").Subrouter()
-	update.Methods("PUT").HandlerFunc(updatePut)
-	return update
+func UpdateRoute(router *mux.Router) {
+	router.PathPrefix("/update").Methods("PUT").HandlerFunc(updatePut)
 }
+
 func updatePut(writer http.ResponseWriter, req *http.Request) {
 	body := UpdateBody{}
 

@@ -14,12 +14,8 @@ type RunBody struct {
 	Name string `json:"name"`
 }
 
-var run *mux.Router = nil
-
-func RunRoute(router *mux.Router) *mux.Router {
-	run = router.PathPrefix("/run").Subrouter()
-	run.Methods("PUT").HandlerFunc(runPut)
-	return run
+func RunRoute(router *mux.Router) {
+	router.PathPrefix("/run").Methods("PUT").HandlerFunc(runPut)
 }
 
 func runPut(writer http.ResponseWriter, req *http.Request) {

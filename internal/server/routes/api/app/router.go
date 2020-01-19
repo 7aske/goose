@@ -8,7 +8,7 @@ import (
 
 var appRouter *mux.Router = nil
 
-func Route(router *mux.Router) *mux.Router {
+func Route(router *mux.Router) {
 	appRouter = router.PathPrefix("/app").Subrouter()
 	DeployRoute(appRouter)
 	RemoveRoute(appRouter)
@@ -17,7 +17,6 @@ func Route(router *mux.Router) *mux.Router {
 	KillRoute(appRouter)
 	UpdateRoute(appRouter)
 	SettingsRoute(appRouter)
-	return appRouter
 }
 
 func writeErrorResponse(writer http.ResponseWriter, err error) {

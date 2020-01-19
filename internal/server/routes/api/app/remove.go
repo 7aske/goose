@@ -3,9 +3,9 @@ package app
 import (
 	"../../../../deployer"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -16,12 +16,8 @@ type RemoveBody struct {
 	Name string `json:"name"`
 }
 
-var remove *mux.Router = nil
-
-func RemoveRoute(router *mux.Router) *mux.Router {
-	remove = router.PathPrefix("/remove").Subrouter()
-	remove.Methods("DELETE").HandlerFunc(removeDelete)
-	return remove
+func RemoveRoute(router *mux.Router) {
+	router.PathPrefix("/remove").Methods("DELETE").HandlerFunc(removeDelete)
 }
 
 func removeDelete(writer http.ResponseWriter, req *http.Request) {

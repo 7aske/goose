@@ -9,12 +9,8 @@ import (
 	"net/http"
 )
 
-var deploy *mux.Router = nil
-
-func DeployRoute(router *mux.Router) *mux.Router {
-	deploy = router.PathPrefix("/deploy").Subrouter()
-	deploy.Methods("POST").HandlerFunc(deployPost)
-	return deploy
+func DeployRoute(router *mux.Router) {
+	router.PathPrefix("/deploy").Methods("POST").HandlerFunc(deployPost)
 }
 
 func deployPost(writer http.ResponseWriter, req *http.Request) {

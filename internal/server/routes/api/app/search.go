@@ -18,12 +18,8 @@ type SearchResponse struct {
 	Running  []instance.Instance `json:"running"`
 }
 
-var search *mux.Router = nil
-
-func SearchRoute(router *mux.Router) *mux.Router {
-	search = router.PathPrefix("/search").Subrouter()
-	search.Methods("GET").HandlerFunc(searchGet)
-	return search
+func SearchRoute(router *mux.Router) {
+	router.PathPrefix("/search").Methods("GET").HandlerFunc(searchGet)
 }
 
 func searchGet(writer http.ResponseWriter, req *http.Request) {

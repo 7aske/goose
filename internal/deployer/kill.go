@@ -3,7 +3,7 @@ package deployer
 import (
 	"../instance"
 	"errors"
-	"fmt"
+	"log"
 	"os"
 	"time"
 )
@@ -16,7 +16,7 @@ func (d *Type) Kill(inst *instance.Instance) error {
 			if inst != nil && inst.Process() != nil {
 				err = inst.Process().Signal(os.Kill)
 				if err != nil {
-					_, _ = fmt.Fprintln(os.Stderr, err)
+					log.Println(err)
 				}
 			}
 		}()

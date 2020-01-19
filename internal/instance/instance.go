@@ -68,6 +68,6 @@ func (d *Instance) Process() *os.Process {
 	return d.process
 }
 
-func (d *Instance) SetProcess(proc *os.Process)  {
+func (d *Instance) SetProcess(proc *os.Process) {
 	d.process = proc
 }

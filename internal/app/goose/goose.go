@@ -7,8 +7,8 @@ import (
 	"../../server"
 	"../../utils"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 )
@@ -20,26 +20,29 @@ type Goose struct {
 
 var Config *config.Type = nil
 var Deployer *deployer.Type = nil
+var host = "0.0.0.0"
 
-//https://github.com/7aske/player-database
-func New() *Goose {
+//var port = 5000
+
+func New() {
 	Config = config.Get()
-	setupDirs()
-	initInstanceFile()
-	Deployer = deployer.New()
-	//err := os.RemoveAll(config.Config.Deployer.AppRoot)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//inst := instance.New("https://github.com/7aske/player-database", "127.0.0.1", instance.Node)
-	//inst, _ = Deployer.Deploy(inst)
-	//_, _ = Deployer.Install(inst)
-	server.Route()
-	if goose == nil {
-		goose = new(Goose)
-		return goose
+
+	err := setupDirs()
+	if err != nil {
+		log.Fatal(err)
 	}
-	return goose
+
+	err = initInstanceFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	Deployer = deployer.New()
+
+	err = server.Listen(host, Config.Deployer.Port)
+	if err != nil {
+		//log.Fatal(err)
+	}
 }
 
 func setupDirs() error {
@@ -53,7 +56,7 @@ func setupDirs() error {
 func initInstanceFile() error {
 	pth := path.Join(Config.Deployer.Root, "instances.json")
 	if _, err := os.Stat(pth); err != nil {
-		fmt.Println("initializing instances file")
+		log.Println("initializing instances file")
 		emptyArr, _ := json.Marshal(&instance.File{Instances: []instance.JSON{}})
 		err := ioutil.WriteFile(pth, emptyArr, 0775)
 		if err != nil {

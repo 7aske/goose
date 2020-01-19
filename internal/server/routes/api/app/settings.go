@@ -21,13 +21,10 @@ type SettingsResponse struct {
 	Instance instance.JSON `json:"instance"`
 }
 
-var settings *mux.Router = nil
-
-func SettingsRoute(router *mux.Router) *mux.Router {
-	settings = router.PathPrefix("/settings").Subrouter()
-	settings.Methods("PUT").HandlerFunc(settingsPut)
-	return settings
+func SettingsRoute(router *mux.Router) {
+	router.PathPrefix("/search").Methods("PUT").HandlerFunc(settingsPut)
 }
+
 func settingsPut(writer http.ResponseWriter, req *http.Request) {
 	body := SettingsBody{}
 

@@ -7,8 +7,6 @@ import (
 
 var api *mux.Router = nil
 
-func Route(router *mux.Router) *mux.Router {
-	api = router.PathPrefix("/api").Subrouter()
-	app.Route(api)
-	return api
+func Route(router *mux.Router) {
+	app.Route(router.PathPrefix("/api").Subrouter())
 }

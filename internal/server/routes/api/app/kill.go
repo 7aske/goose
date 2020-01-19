@@ -15,12 +15,8 @@ type KillBody struct {
 	Pid  uint   `json:"pid"`
 }
 
-var kill *mux.Router = nil
-
-func KillRoute(router *mux.Router) *mux.Router {
-	kill = router.PathPrefix("/kill").Subrouter()
-	kill.Methods("PUT").HandlerFunc(killPut)
-	return kill
+func KillRoute(router *mux.Router) {
+	router.PathPrefix("/kill").Methods("PUT").HandlerFunc(killPut)
 }
 
 func killPut(writer http.ResponseWriter, req *http.Request) {

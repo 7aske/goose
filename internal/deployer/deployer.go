@@ -6,7 +6,6 @@ import (
 	"../utils"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -85,6 +84,16 @@ func GetDeployedInstanceByName(name string) (instance.JSON, bool) {
 	return instance.JSON{}, false
 }
 
+func GetRunningInstanceByHost(query string) (*instance.Instance, bool) {
+	instances := Deployer.Running
+	for _, inst := range instances {
+		if inst.Hostname == query {
+			return inst, true
+		}
+	}
+	return nil, false
+}
+
 func GetRunningInstance(query string) (*instance.Instance, bool) {
 	instances := Deployer.Running
 	for _, inst := range instances {
@@ -133,13 +142,13 @@ func updateInstancesFile() error {
 	}
 	for i, inst := range instances {
 		if !utils.ContainsFile(inst.Name, &folders) {
-			fmt.Println("not found ", inst.Name)
+			log.Println("not found ", inst.Name)
 			instances = append(instances[:i], instances[i+1:]...)
 		}
 	}
 	for _, folder := range folders {
 		if !utils.ContainsInstance(folder.Name(), &instances) {
-			fmt.Println("not found ", folder.Name())
+			log.Println("not found ", folder.Name())
 			err = os.RemoveAll(path.Join(Config.Deployer.AppRoot, folder.Name()))
 			if err != nil {
 				return err
@@ -222,6 +231,5 @@ func (d *Type) addInstance(instance *instance.Instance) {
 func AddExitListener(instance *instance.Instance, d *Type) {
 	n, _ := instance.Process().Wait()
 	_ = d.removeInstance(instance)
-	_, _ = fmt.Fprintf(os.Stderr, "instance '%s' exited with code %d\r\n", instance.Name, n.ExitCode())
-
+	log.Printf("instance '%s' exited with code %d\r\n", instance.Name, n.ExitCode())
 }

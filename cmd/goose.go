@@ -2,15 +2,11 @@ package main
 
 import (
 	"../internal/app/goose"
-	"fmt"
 	"log"
 )
 
 func main() {
-	fmt.Println("starting goose")
-	err := goose.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("exiting goose")
+	log.Println("starting goose")
+	goose.New()
+	log.Println("exiting goose")
 }
