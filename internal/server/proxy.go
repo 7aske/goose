@@ -3,8 +3,8 @@ package server
 import (
 	"../config"
 	"../deployer"
+	"errors"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	"log"
 	"net"
 	"net/http"
