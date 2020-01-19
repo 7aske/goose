@@ -53,10 +53,12 @@ func Get() *Type {
 
 func Parse() *Type {
 	t := new(Type)
+
 	data, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
+
 	err = yaml.Unmarshal(data, t)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -106,6 +108,10 @@ func Parse() *Type {
 	if t.Auth.Secret == "" {
 		t.Auth.Secret = "secret"
 		log.Println("auth     'secret'   not set using default value - ", t.Auth.Secret)
+	}
+
+	if t.Deployer.Port == t.Router.Port {
+		log.Fatal("deployer and router ports cannot be same", t.Deployer.Port)
 	}
 
 	Config = t

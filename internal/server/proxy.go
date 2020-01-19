@@ -23,14 +23,15 @@ func ProxyListen(host string, port int) error {
 	log.Println("starting proxy on port", port)
 	router = mux.NewRouter()
 	router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host, port, err := net.SplitHostPort(r.Host)
+		host, _, err := net.SplitHostPort(r.Host)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(404)
 		}
 
 		if host == config.Config.Deployer.Hostname {
-			u, err := url.Parse("http://" + net.JoinHostPort(host, port))
+			p := strconv.Itoa(config.Config.Deployer.Port)
+			u, err := url.Parse("http://" + net.JoinHostPort(host, p))
 			if err == nil {
 				log.Println("proxied request for deployer ->", host)
 				proxy := httputil.NewSingleHostReverseProxy(u)
