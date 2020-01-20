@@ -53,6 +53,7 @@ func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 
 	running.Pid = node.Process.Pid
 	running.SetProcess(node.Process)
+	running.LastRun = time.Now()
 	inst.LastRun = time.Now()
 	d.addInstance(running)
 	err = d.addInstanceJSON(inst)
@@ -81,6 +82,8 @@ func (d *Type) runNpm(inst instance.JSON) (*instance.Instance, error) {
 	running := instance.FromJSONStruct(inst)
 	running.SetProcess(proc)
 	running.Pid = proc.Pid
+	running.LastRun = time.Now()
+	inst.LastRun = time.Now()
 	d.addInstance(running)
 	err = d.addInstanceJSON(inst)
 	if err != nil {

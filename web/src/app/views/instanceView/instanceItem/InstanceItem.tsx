@@ -4,7 +4,7 @@ import axios from "axios";
 import "./InstanceItem.css";
 
 type InstanceItemProps = {
-	triggerRefresh:Function;
+	triggerRefresh: Function;
 	inst: InstanceType;
 	running: boolean;
 };
@@ -17,6 +17,10 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 	constructor(props: InstanceItemProps) {
 		super(props);
 		this.state = {inst: props.inst, running: props.running};
+		this.refreshInstance = this.refreshInstance.bind(this);
+		setInterval(() => {
+			this.refreshInstance();
+		}, 10000);
 	}
 
 	instanceRun() {
@@ -56,7 +60,16 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 		}).catch(err => console.error(err));
 	}
 
+	refreshInstance() {
+		axios.get("/api/app/search?query=" + this.state.inst.id).then(res => {
+			if (res.status === 200) {
+				this.setState({inst: res.data.instance, running: res.data.running});
+			}
+		}).catch(err => console.error(err));
+	}
+
 	render() {
+
 		return (
 			<li>
 				<div className="collapsible-header"><i
@@ -79,31 +92,37 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 								<InstanceItemRow name={"Deployed"} val={this.state.inst.deployed}/>
 								<InstanceItemRow name={"Updated"} val={this.state.inst.last_updated}/>
 								<InstanceItemRow name={"Run"} val={this.state.inst.last_run}/>
-								<InstanceItemRow name={"Uptime"} val={this.state.inst.uptime}/>
 								<InstanceItemRow name={"Backend"} val={this.state.inst.backend}/>
-								<InstanceItemRow name={"PID"} val={this.state.inst.pid}/>
+								{this.state.running ?
+									<InstanceItemRow name={"Uptime"} val={this.state.inst.uptime}/> : ""}
+								{this.state.running ?
+									<InstanceItemRow name={"PID"} val={this.state.inst.pid}/> : ""}
 							</ul>
 						</div>
 					</div>
 					<div className="row">
 						{this.state.running ?
 							<button onClick={this.instanceKill.bind(this)}
-							   className="waves-light btn red darken-4 ml-2 mr-2"><i
+									className="waves-light btn red darken-4 ml-2 mr-2"><i
 								className="material-icons right">close</i>Kill</button>
 							:
 							<div>
 								<button onClick={this.instanceRun.bind(this)} className="waves-light btn ml-2 mr-2"><i
-									className="material-icons right">directions_run</i>Run</button>
+									className="material-icons right">directions_run</i>Run
+								</button>
 								<button onClick={this.instanceUpdate.bind(this)}
-								   className="waves-light btn blue btn ml-2 mr-2"><i
-									className="material-icons right">sync</i>Update</button>
+										className="waves-light btn blue btn ml-2 mr-2"><i
+									className="material-icons right">sync</i>Update
+								</button>
 
 								<button className="waves-light btn orange btn ml-2 mr-2"><i
-									className="material-icons right">settings</i>Settings</button>
+									className="material-icons right">settings</i>Settings
+								</button>
 
 								<button onClick={this.instanceRemove.bind(this)}
-								   className="waves-light btn red btn ml-2 mr-2"><i
-									className="material-icons right">delete_forever</i>Remove</button>
+										className="waves-light btn red btn ml-2 mr-2"><i
+									className="material-icons right">delete_forever</i>Remove
+								</button>
 							</div>
 						}
 					</div>
@@ -129,7 +148,25 @@ export class InstanceItemRow extends React.Component<InstanceItemRowProps, Insta
 		this.state = {name: props.name, val: props.val};
 	}
 
+	uptimeStr(uptime: number): string {
+		let days = Math.floor(uptime / (1000 * 60 * 60 * 24));
+		let hours = Math.floor((uptime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		let minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
+		let seconds = Math.floor((uptime % (1000 * 60)) / 1000);
+		return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+	}
+
 	render() {
+		let val;
+		if (this.state.name === "Host" || this.state.name === "Repo") {
+			val = "http://" + (this.state.val as string).replace("https://", "");
+		} else if (this.state.name === "Uptime") {
+			val = this.uptimeStr(this.state.val as number);
+		} else {
+			val = this.state.val;
+		}
+
+
 		return (
 			<li className="collection-item">
 				<div className="row mb-0">
@@ -137,7 +174,11 @@ export class InstanceItemRow extends React.Component<InstanceItemRowProps, Insta
 						{this.state.name}:
 					</div>
 					<div className="col s9 right-align truncate">
-						{this.state.val}
+						{
+							this.state.name === "Host" || this.state.name === "Repo" ?
+								<a target={"_blank"}
+								   href={"" + val}>{"" + val}</a> : val
+						}
 					</div>
 				</div>
 			</li>
