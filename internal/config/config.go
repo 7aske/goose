@@ -38,6 +38,7 @@ type Type struct {
 		Hostname string `yaml:"hostname"`
 	}
 	Auth struct {
+		Enable bool   `yaml:"enable"`
 		Secret string `yaml:"secret"`
 		User   string `yaml:"user"`
 		Pass   string `yaml:"pass"`
@@ -108,6 +109,10 @@ func Parse() *Type {
 	if t.Auth.Secret == "" {
 		t.Auth.Secret = "secret"
 		log.Println("auth     'secret'   not set using default value - ", t.Auth.Secret)
+	}
+
+	if t.Auth.Enable == false {
+		log.Println("WARNING authentication disabled")
 	}
 
 	if t.Deployer.Port == t.Router.Port {

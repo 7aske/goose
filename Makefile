@@ -19,4 +19,5 @@ dep:
 	go get github.com/gorilla/mux
 	go get github.com/gorilla/handlers
 	go get github.com/teris-io/shortid
+	go get github.com/dgrijalva/jwt-go
 
