@@ -2,6 +2,8 @@ import * as React from "react";
 import InstanceType from "../../../../@types/Intance";
 import axios from "axios";
 import "./InstanceItem.css";
+import { getBackendIcon, uptimeStr } from "../../../../utils/InstanceUtils";
+import { render } from "react-dom";
 
 type InstanceItemProps = {
 	triggerRefresh: Function;
@@ -68,11 +70,12 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 		}).catch(err => console.error(err));
 	}
 
+
 	render() {
 
 		return (
 			<li>
-				<div className="collapsible-header"><i
+				<div className="collapsible-header font-weight-bold"><i
 					className={(this.state.running ? "green-text" : "red-text") + " material-icons"}>whatshot</i>{this.state.inst.name}
 				</div>
 				<div className="collapsible-body">
@@ -132,36 +135,32 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 	};
 };
 
-type InstanceItemRowProps = {
-	name: string;
-	val: string | number | Date;
-};
 
-type InstanceItemRowState = {
-	name: string;
-	val: string | number | Date;
-};
+function BackendIcon(props: any) {
+	return <img style={{height: 50, width: 50, marginTop: "-15px", marginBottom: "-20px"}} alt={props.name}
+				src={getBackendIcon(props.name)}/>;
+}
 
-export class InstanceItemRow extends React.Component<InstanceItemRowProps, InstanceItemRowState> {
-	constructor(props: InstanceItemRowProps) {
+function InstanceLink(props: any) {
+	let val = "http://" + (props.href as string).replace("https://", "");
+	return <a rel="noopener noreferrer" target="blank" href={val}>{val}</a>;
+}
+
+
+class InstanceItemRow extends React.Component<any, any> {
+	constructor(props: any) {
 		super(props);
 		this.state = {name: props.name, val: props.val};
-	}
-
-	uptimeStr(uptime: number): string {
-		let days = Math.floor(uptime / (1000 * 60 * 60 * 24));
-		let hours = Math.floor((uptime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-		let minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
-		let seconds = Math.floor((uptime % (1000 * 60)) / 1000);
-		return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 	}
 
 	render() {
 		let val;
 		if (this.state.name === "Host" || this.state.name === "Repo") {
-			val = "http://" + (this.state.val as string).replace("https://", "");
+			val = <InstanceLink href={this.state.val}/>;
 		} else if (this.state.name === "Uptime") {
-			val = this.uptimeStr(this.state.val as number);
+			val = uptimeStr(this.state.val as number);
+		} else if (this.state.name === "Backend") {
+			val = <BackendIcon name={this.state.val}/>;
 		} else {
 			val = this.state.val;
 		}
@@ -170,15 +169,11 @@ export class InstanceItemRow extends React.Component<InstanceItemRowProps, Insta
 		return (
 			<li className="collection-item">
 				<div className="row mb-0">
-					<div className="col s3 left-align" style={{fontWeight: "bold"}}>
+					<div className="col s3 left-align font-weight-bold">
 						{this.state.name}:
 					</div>
 					<div className="col s9 right-align truncate">
-						{
-							this.state.name === "Host" || this.state.name === "Repo" ?
-								<a target={"_blank"}
-								   href={"" + val}>{"" + val}</a> : val
-						}
+						{val}
 					</div>
 				</div>
 			</li>
