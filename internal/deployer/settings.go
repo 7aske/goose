@@ -3,6 +3,7 @@ package deployer
 import (
 	"../instance"
 	"../port"
+	"errors"
 	"strconv"
 )
 
@@ -10,6 +11,9 @@ func (d *Type) Settings(inst *instance.JSON, settings map[string]string) error {
 	for k, v := range settings {
 		switch k {
 		case "hostname":
+			if v == "" {
+				return errors.New("invalid hostname")
+			}
 			inst.Hostname = v
 		case "port":
 			p, err := strconv.ParseUint(v, 10, 64)
@@ -27,6 +31,8 @@ func (d *Type) Settings(inst *instance.JSON, settings map[string]string) error {
 			bkend := instance.Backend(v)
 			if instance.IsBackendValid(bkend) {
 				inst.Backend = instance.Backend(v)
+			} else {
+				return errors.New("invalid backend")
 			}
 		}
 	}

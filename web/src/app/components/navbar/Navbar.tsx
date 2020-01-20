@@ -11,7 +11,7 @@ export default class Navbar extends React.Component<NavbarProps, NavbarState> {
 	render() {
 		return (
 			<nav>
-				<div className="nav-wrapper">
+				<div className="nav-wrapper black">
 					<a href="/" className="brand-logo"><i className="material-icons">cloud</i></a>
 					<ul className="right hide-on-med-and-down">
 						{/*<li><a href="#"><i className="material-icons">search</i></a></li>*/}

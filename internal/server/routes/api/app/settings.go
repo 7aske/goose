@@ -9,12 +9,18 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type SettingsBody struct {
-	Id       string            `json:"id"`
-	Name     string            `json:"name"`
-	Settings map[string]string `json:"settings"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Settings struct {
+		Port     int `json:"port"`
+		Hostname string `json:"hostname"`
+		Backend  string `json:"backend"`
+	} `json:"settings"`
+	//Settings map[string]string `json:"settings"`
 }
 type SettingsResponse struct {
 	Message  string        `json:"message"`
@@ -22,7 +28,7 @@ type SettingsResponse struct {
 }
 
 func SettingsRoute(router *mux.Router) {
-	router.PathPrefix("/search").Methods("PUT").HandlerFunc(settingsPut)
+	router.PathPrefix("/settings").Methods("PUT").HandlerFunc(settingsPut)
 }
 
 func settingsPut(writer http.ResponseWriter, req *http.Request) {
@@ -55,9 +61,19 @@ func settingsPut(writer http.ResponseWriter, req *http.Request) {
 			writeErrorResponse(writer, errors.New("instance is running"))
 			return
 		} else {
-			err = deployer.Deployer.Settings(&depl, body.Settings)
+			m := make(map[string]string)
+			if body.Settings.Port != 0 {
+				m["port"] = strconv.Itoa(body.Settings.Port)
+			}
+			if body.Settings.Hostname != "" {
+				m["hostname"] = body.Settings.Hostname
+			}
+			if body.Settings.Backend != "" {
+				m["backend"] = body.Settings.Backend
+			}
+			err = deployer.Deployer.Settings(&depl, m)
 			if err != nil {
-				writeErrorResponse(writer, errors.New("instance is running"))
+				writeErrorResponse(writer, err)
 				return
 			} else {
 				bytes, _ := json.Marshal(&SettingsResponse{Message: fmt.Sprintf("successfuly updated %s settings", depl.Name), Instance: depl})

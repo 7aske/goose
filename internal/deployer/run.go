@@ -95,13 +95,13 @@ func (d *Type) runNpm(inst instance.JSON) (*instance.Instance, error) {
 }
 
 func (d *Type) runPython(inst instance.JSON) (*instance.Instance, error) {
-	return instance.FromJSONStruct(inst), nil
+	return nil, errors.New("backend not implemented")
 }
 
 func (d *Type) runFlask(inst instance.JSON) (*instance.Instance, error) {
-	return instance.FromJSONStruct(inst), nil
+	return nil, errors.New("backend not implemented")
 }
 
 func (d *Type) runWeb(inst instance.JSON) (*instance.Instance, error) {
-	return instance.FromJSONStruct(inst), nil
+	return nil, errors.New("backend not implemented")
 }
