@@ -59,7 +59,7 @@ func killPut(writer http.ResponseWriter, req *http.Request) {
 			}{"instance killed", query}
 			bytes, _ := json.Marshal(&resp)
 			writer.Header().Add("Content-Type", "application/json")
-			writer.WriteHeader(400)
+			writer.WriteHeader(200)
 			writer.Write(bytes)
 			return
 		} else {

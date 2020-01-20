@@ -15,9 +15,8 @@ install: build
 
 
 dep:
-	echo Installing dependecies
-
 	go get gopkg.in/yaml.v2
 	go get github.com/gorilla/mux
+	go get github.com/gorilla/handlers
 	go get github.com/teris-io/shortid
 

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"time"
 )
 
 type SearchBody struct {
@@ -41,6 +42,7 @@ func searchGet(writer http.ResponseWriter, req *http.Request) {
 
 	insts := deployer.Deployer.Running
 	for _, inst := range insts {
+		inst.Uptime = time.Now().Sub(inst.LastRun).Milliseconds()
 		resp.Running = append(resp.Running, *inst)
 	}
 	instsDep, err := deployer.GetDeployedInstances()
