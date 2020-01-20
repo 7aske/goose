@@ -3,7 +3,6 @@ import InstanceType from "../../../../@types/Intance";
 import axios from "axios";
 import "./InstanceItem.css";
 import { getBackendIcon, uptimeStr } from "../../../../utils/InstanceUtils";
-import { render } from "react-dom";
 
 type InstanceItemProps = {
 	triggerRefresh: Function;
@@ -161,6 +160,15 @@ class InstanceItemRow extends React.Component<any, any> {
 			val = uptimeStr(this.state.val as number);
 		} else if (this.state.name === "Backend") {
 			val = <BackendIcon name={this.state.val}/>;
+		} else if (this.state.name === "Run" || this.state.name === "Updated" || this.state.name === "Deployed") {
+			val = new Date(this.state.val).toLocaleString("en-GB", {
+				day:"numeric",
+				month:"numeric",
+				year:"numeric",
+				hour: "numeric",
+				minute: "numeric",
+				second: "numeric",
+			});
 		} else {
 			val = this.state.val;
 		}
