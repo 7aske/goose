@@ -18,15 +18,18 @@ type instanceItemState = {
 
 export default class instanceItem extends React.Component<InstanceItemProps, instanceItemState> {
 	settingsModalRef: RefObject<ModalDialog>;
-
+	refreshTimer: NodeJS.Timeout;
 	constructor(props: InstanceItemProps) {
 		super(props);
 		this.state = {inst: props.inst, running: props.running};
 		this.settingsModalRef = React.createRef();
 		this.refreshInstance = this.refreshInstance.bind(this);
-		setInterval(() => {
+		this.refreshTimer = setInterval(() => {
 			this.refreshInstance();
 		}, 10000);
+	}
+	componentWillUnmount(): void {
+		clearTimeout(this.refreshTimer);
 	}
 
 	instanceRun() {
@@ -58,7 +61,9 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 				this.setState({running: false});
 				M.toast({html: res.data.message, classes: "rounded green"});
 			}
-		}).catch(err => console.error(err));
+		}).catch(err => {
+			M.toast({html: err.response.data.message, classes: "rounded red"});
+		});
 	}
 
 	instanceRemove() {
@@ -113,6 +118,7 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 	refreshInstance() {
 		axios.get("/api/app/search?query=" + this.state.inst.id).then(res => {
 			if (res.status === 200) {
+				console.log(res.data.instance);
 				this.setState({inst: res.data.instance, running: res.data.running});
 			}
 		}).catch(err => {

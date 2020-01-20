@@ -64,7 +64,7 @@ class ModalDialog extends React.Component {
 			<div ref={this.modalRef} className="modal" style={styleSheet}>
 				<div className="p-4 black white-text">
 					<h4 id="modal-question-title" className="mb-0">{this.state.title}</h4>
-				</div>portfolio-react
+				</div>
 				<div className="modal-content">
 					<div id="modal-question-body">
 						{this.state.body}

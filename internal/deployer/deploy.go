@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/teris-io/shortid"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -48,8 +49,8 @@ func (d *Type) Deploy(inst *instance.JSON) error {
 		} else if strings.Contains(errStr, "unable to find remote helper") {
 			return errors.New(fmt.Sprintf("unable to find remote protocol helper"))
 		}
-		_, _ = fmt.Fprintln(os.Stderr, errStr)
-		_, _ = fmt.Fprintln(os.Stderr, "error case not implemented")
+		log.Println(errStr)
+		log.Println("error case not implemented")
 		return errors.New(errStr)
 	}
 

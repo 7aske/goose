@@ -63,16 +63,13 @@ func (d *Type) installNpm(inst *instance.JSON) error {
 }
 
 func (d *Type) installPython(inst *instance.JSON) error {
-
-	return nil
+	return errors.New("backend not implemented")
 }
 
 func (d *Type) installFlask(inst *instance.JSON) error {
-
-	return nil
+	return errors.New("backend not implemented")
 }
 
 func (d *Type) installWeb(inst *instance.JSON) error {
-
-	return nil
+	return errors.New("backend not implemented")
 }
