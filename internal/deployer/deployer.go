@@ -231,5 +231,5 @@ func (d *Type) addInstance(instance *instance.Instance) {
 func AddExitListener(instance *instance.Instance, d *Type) {
 	n, _ := instance.Process().Wait()
 	_ = d.removeInstance(instance)
-	log.Printf("instance '%s' exited %v\r\n", instance.Name, n)
+	log.Printf("instance '%s' exited with code %d\r\n", instance.Name, n.ExitCode())
 }
