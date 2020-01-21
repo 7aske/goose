@@ -10,7 +10,7 @@ export type ModalPayload = {
 type ModalProps = {
 	title?: string;
 	onCancel?: Function;
-	onConfirm: ConfirmCallback;
+	onConfirm?: ConfirmCallback;
 }
 type ModalState = {
 	title?: string;
@@ -34,12 +34,12 @@ class ModalDialog extends React.Component {
 	}
 
 	componentDidMount(): void {
-		const instance: Modal = M.Modal.init(this.modalRef.current as unknown as MElements, {preventScrolling: true}) as unknown as Modal;
+		const instance: Modal = M.Modal.init(this.modalRef.current as unknown as MElements, {preventScrolling: false}) as unknown as Modal;
 		this.setState({instance});
 	}
 
-	open(body?: JSX.Element) {
-		this.setState({body});
+	open(body?: JSX.Element, title?: string) {
+		this.setState({body, title});
 		if (this.state.instance) {
 			this.state.instance.open();
 		}
@@ -49,10 +49,14 @@ class ModalDialog extends React.Component {
 		if (this.props.onCancel) {
 			this.props.onCancel(false);
 		}
+		this.state.instance?.close();
 	}
 
 	onConfirmHandler() {
-		this.props.onConfirm(this.state.payload);
+		if (this.props.onConfirm) {
+			this.props.onConfirm(this.state.payload);
+		}
+		this.state.instance?.close();
 	}
 
 	updatePayload(payload: ModalPayload) {
@@ -72,11 +76,12 @@ class ModalDialog extends React.Component {
 				</div>
 				<div className="modal-footer">
 					<button id="btn-modal-reject" onClick={this.onCancelHandler.bind(this)}
-							className="modal-close waves-green btn red" style={btnStyle}>Close
+							className="waves-green btn red" style={btnStyle}>Close
 					</button>
-					<button id="btn-modal-confirm" onClick={this.onConfirmHandler.bind(this)}
-							className="modal-close waves-green btn" style={btnStyle}>Confirm
-					</button>
+					{this.props.onConfirm ? <button id="btn-modal-confirm" onClick={this.onConfirmHandler.bind(this)}
+													className="waves-green btn" style={btnStyle}>Confirm
+					</button> : ""}
+
 				</div>
 			</div>);
 	}

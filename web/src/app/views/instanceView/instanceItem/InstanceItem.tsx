@@ -3,8 +3,9 @@ import InstanceType from "../../../../@types/Intance";
 import axios from "axios";
 import { getBackendIcon, uptimeStr } from "../../../../utils/InstanceUtils";
 import ModalDialog, { ModalPayload } from "../../../components/modal/ModalDialog";
-import { CSSProperties, RefObject } from "react";
+import { CSSProperties, FC, RefObject } from "react";
 import SettingsBody from "../../../components/modal/SettingsBody";
+import LogListBody from "../../../components/modal/LogListBody";
 
 type InstanceItemProps = {
 	triggerRefresh: Function;
@@ -18,16 +19,22 @@ type instanceItemState = {
 
 export default class instanceItem extends React.Component<InstanceItemProps, instanceItemState> {
 	settingsModalRef: RefObject<ModalDialog>;
+	logModalRef: RefObject<ModalDialog>;
+	logDetailModalRef: RefObject<ModalDialog>;
 	refreshTimer: NodeJS.Timeout;
+
 	constructor(props: InstanceItemProps) {
 		super(props);
 		this.state = {inst: props.inst, running: props.running};
 		this.settingsModalRef = React.createRef();
+		this.logModalRef = React.createRef();
+		this.logDetailModalRef = React.createRef();
 		this.refreshInstance = this.refreshInstance.bind(this);
 		this.refreshTimer = setInterval(() => {
 			this.refreshInstance();
 		}, 10000);
 	}
+
 	componentWillUnmount(): void {
 		clearTimeout(this.refreshTimer);
 	}
@@ -115,6 +122,31 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 		}
 	}
 
+	openDetailedModal(name: string, type: string) {
+		if (this.logDetailModalRef.current) {
+			axios.get(`/api/app/log?instance=${name}&type=${type}`).then(res => {
+				if (res.status === 200) {
+					const data = res.data.content;
+					console.log(data);
+					this.logDetailModalRef.current?.open(<div>
+						<pre style={{whiteSpace: "pre-wrap"}} className="left-align">{data}</pre>
+					</div>, `${type} - ${name}`);
+				}
+			}).catch(err => {
+				console.error(err);
+			});
+		}
+	}
+
+	openInstanceLogsModal() {
+		if (this.logModalRef.current) {
+			const comp = <LogListBody openDetailedModal={this.openDetailedModal.bind(this)}
+									  instanceName={this.state.inst.name}/>;
+			this.logModalRef.current.open(comp);
+		}
+	}
+
+
 	refreshInstance() {
 		axios.get("/api/app/search?query=" + this.state.inst.id).then(res => {
 			if (res.status === 200) {
@@ -130,6 +162,8 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 			<li>
 				<ModalDialog ref={this.settingsModalRef} title={this.state.inst.name}
 							 onConfirm={this.instanceSettings.bind(this)}/>
+				<ModalDialog ref={this.logModalRef} title={this.state.inst.name + " Logs"}/>
+				<ModalDialog ref={this.logDetailModalRef}/>
 				<div className="collapsible-header font-weight-bold"><i
 					className={(this.state.running ? "green-text" : "red-text") + " material-icons"}>whatshot</i>{this.state.inst.name}
 				</div>
@@ -165,6 +199,10 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 										className="waves-light btn red darken-4 ml-2 mr-2"><i
 									className="material-icons right">close</i>Kill
 								</button>
+								<button onClick={this.openInstanceLogsModal.bind(this)} style={btnStyles}
+										className="waves-light btn cyan lighten-2 btn ml-2 mr-2"><i
+									className="material-icons right">info_outline</i>Logs
+								</button>
 							</div>
 							:
 							<div>
@@ -186,6 +224,10 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 										className="waves-light btn red btn ml-2 mr-2"><i
 									className="material-icons right">delete_forever</i>Remove
 								</button>
+								<button onClick={this.openInstanceLogsModal.bind(this)} style={btnStyles}
+										className="waves-light btn cyan lighten-2 btn ml-2 mr-2"><i
+									className="material-icons right">info_outline</i>Logs
+								</button>
 							</div>
 						}
 					</div>
@@ -199,10 +241,28 @@ const btnStyles: CSSProperties = {
 	width: 140,
 };
 
+class BackendIcon extends React.Component<any, any> {
+	backendIconRef: React.RefObject<HTMLImageElement>;
 
-function BackendIcon(props: any) {
-	return <img style={{height: 50, width: 50}} alt={props.name} src={getBackendIcon(props.name)}/>;
-}
+	constructor(props: any) {
+		super(props);
+		this.backendIconRef = React.createRef();
+	}
+
+	componentDidMount(): void {
+		if (this.backendIconRef.current) {
+			console.log(this.backendIconRef.current);
+			M.Tooltip.init(this.backendIconRef.current, {});
+		}
+	}
+
+	render() {
+		return (
+			<img ref={this.backendIconRef} className="tooltipped" data-position="top" data-tooltip={this.props.name}
+				 style={{height: 50, width: 50}}
+				 alt={this.props.name} src={getBackendIcon(this.props.name)}/>);
+	};
+};
 
 function InstanceLink(props: any) {
 	let val = "http://" + (props.href as string).replace("https://", "");
