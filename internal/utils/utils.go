@@ -26,6 +26,15 @@ func ContainsFile(q string, dir *[]os.FileInfo) bool {
 	return false
 }
 
+func ContainsPath(q string, dir *[]os.FileInfo) bool {
+	for _, file := range *dir {
+		if strings.HasSuffix(q, file.Name()) {
+			return true
+		}
+	}
+	return false
+}
+
 func ContainsInstance(q string, dir *[]instance.JSON) bool {
 	for _, inst := range *dir {
 		if inst.Name == q {

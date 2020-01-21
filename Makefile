@@ -3,8 +3,9 @@ out=build
 
 default_recipe: build
 
+.PHONY: build
 build: $(main)
-	go build -o $(out) $(main)
+	go build  -o $(out)/goose $(main)
 
 run:
 	go run $(main)
@@ -13,6 +14,9 @@ run:
 install: build
 	sudo cp $(out)/goose /usr/local/bin/
 
+.PHONY:client
+client:
+	cd ./web && npm install && npm run build
 
 dep:
 	go get gopkg.in/yaml.v2

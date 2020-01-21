@@ -11,10 +11,12 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -31,7 +33,6 @@ func ProxyListen(host string, port int) error {
 
 	router.Path("/auth").Methods("POST").HandlerFunc(authRoute)
 	router.Path("/validate").Methods("POST").HandlerFunc(validateRoute)
-
 	router.PathPrefix("/").HandlerFunc(proxyRoute)
 
 	return http.ListenAndServe(net.JoinHostPort(host, strconv.Itoa(port)), router)
@@ -54,6 +55,24 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(responses.BadRequest))
 			return
+		}
+
+		fpath := r.URL.Path
+		if fpath == "/" {
+			fpath = "web/index.html"
+		} else {
+			fpath = "web" + fpath
+		}
+
+		if r.Method == "GET" {
+			indexBytes, err := ioutil.ReadFile(fpath)
+			if err == nil {
+				ext := path.Ext(fpath)
+				m := mime.TypeByExtension(ext)
+				w.Header().Add("Content-Type", m)
+				w.Write(indexBytes)
+				return
+			}
 		}
 
 		if authorizeRequest(r) {

@@ -8,23 +8,22 @@ import (
 	"path"
 )
 
-/*
-router:
+const defaultConfig = `router:
   port: 8080
-  host: hostname
-
-auth:
-  secret: secret
-  user: admin
-  pass: admin
+  hostname: 0.0.0.0
 
 deployer:
-  root: apps
-*/
+  port: 5000
+  hostname: 127.0.0.1
+
+auth:
+  enable: true
+  secret: secret
+  user: admin
+  pass: admin`
 
 var Config *Type = nil
 
-const configPath = "api/config.yaml"
 
 type Type struct {
 	Deployer struct {
@@ -54,10 +53,14 @@ func Get() *Type {
 
 func Parse() *Type {
 	t := new(Type)
-
+	home := os.Getenv("HOME")
+	configPath := path.Join(home, ".config/goose/config.yaml")
 	data, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Println(err)
+		log.Println("using default config")
+		log.Println(defaultConfig)
+		data = []byte(defaultConfig)
 	}
 
 	err = yaml.Unmarshal(data, t)

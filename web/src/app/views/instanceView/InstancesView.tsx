@@ -6,17 +6,18 @@ import M, { Collapsible } from "materialize-css";
 import { RefObject } from "react";
 import ModalDialog, { ModalPayload } from "../../components/modal/ModalDialog";
 import SettingsBody from "../../components/modal/SettingsBody";
+import {withRouter} from"react-router-dom";
 
 type InstancesViewProps = {};
 type InstancesViewState = {
 	instances: InstanceType[]
 };
 
-export default class InstancesView extends React.Component<InstancesViewProps, InstancesViewState> {
+class InstancesView extends React.Component<any, any> {
 	ref: RefObject<HTMLUListElement>;
 	deployModalRef: RefObject<ModalDialog>;
 	instancesCollapsible?: Collapsible;
-
+	state: InstancesViewState;
 	constructor(props: InstancesViewProps) {
 		super(props);
 		this.state = {instances: []};
@@ -71,7 +72,8 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 		}).catch(err => {
 			console.dir(err);
 			if (err.response.status === 401) {
-				window.location.href = "/login";
+				// window.location.href = "/login";
+				this.props.history.push("/login");
 			}
 		});
 	}
@@ -145,3 +147,5 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 		);
 	};
 };
+
+export default withRouter(InstancesView);

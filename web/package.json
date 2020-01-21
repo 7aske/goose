@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test"
+    "postbuild": "mkdir -p ../build/web && cp -r build/* ../build/web/"
   },
   "eslintConfig": {
     "extends": "react-app"
