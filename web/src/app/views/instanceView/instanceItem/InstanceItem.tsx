@@ -118,7 +118,6 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 	refreshInstance() {
 		axios.get("/api/app/search?query=" + this.state.inst.id).then(res => {
 			if (res.status === 200) {
-				console.log(res.data.instance);
 				this.setState({inst: res.data.instance, running: res.data.running});
 			}
 		}).catch(err => {

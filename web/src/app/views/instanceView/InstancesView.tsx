@@ -23,6 +23,18 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 		this.ref = React.createRef();
 		this.deployModalRef = React.createRef();
 		this.getInstances = this.getInstances.bind(this);
+		axios.interceptors.request.use(function (config) {
+			const token = sessionStorage.getItem("token");
+			config.headers["Authorization"] = "Bearer " + token;
+			if (config.data) {
+				config.data["token"] = token;
+			} else {
+				config.data = {token};
+			}
+			return config;
+		}, function (error) {
+			return Promise.reject(error);
+		});
 	}
 
 	componentDidUpdate(prevProps: Readonly<InstancesViewProps>, prevState: Readonly<InstancesViewState>, snapshot?: any): void {
@@ -37,7 +49,13 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 	}
 
 	getInstances() {
-		axios.get("/api/app/search").then(res => {
+		axios.get("/api/app/search", {
+			data: {
+				token: sessionStorage.getItem("token"),
+			}, headers: {
+				"Authorization": "Bearer " + sessionStorage.getItem("token"),
+			},
+		}).then(res => {
 			let data: InstanceType[] = res.data.running ? res.data.running : [];
 			if (res.data.deployed) {
 				(res.data.deployed as InstanceType[]).forEach(inst => {
@@ -50,7 +68,12 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 			this.setState({
 				instances: data,
 			});
-		}).catch(err => console.log(err));
+		}).catch(err => {
+			console.dir(err);
+			if (err.response.status === 401) {
+				window.location.href = "/login";
+			}
+		});
 	}
 
 	handleRefresh() {
@@ -93,7 +116,7 @@ export default class InstancesView extends React.Component<InstancesViewProps, I
 				}
 			}).catch(err => {
 				console.dir(err);
-				if (err.response){
+				if (err.response) {
 					M.toast({html: err.response.data.message, classes: "rounded red"});
 				}
 				console.error(err);

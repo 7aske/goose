@@ -30,10 +30,9 @@ func ProxyListen(host string, port int) error {
 	router = mux.NewRouter()
 
 	router.Path("/auth").Methods("POST").HandlerFunc(authRoute)
+	router.Path("/validate").Methods("POST").HandlerFunc(validateRoute)
 
 	router.PathPrefix("/").HandlerFunc(proxyRoute)
-
-	//router.Use(authMiddleware)
 
 	return http.ListenAndServe(net.JoinHostPort(host, strconv.Itoa(port)), router)
 }
@@ -62,6 +61,7 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 			proxy := httputil.NewSingleHostReverseProxy(u)
 			proxy.ServeHTTP(w, r)
 		} else {
+			log.Println("unauthorized request for deployer ->", host)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(responses.Unauthorized))
 			return
@@ -115,9 +115,10 @@ func authorizeRequest(r *http.Request) bool {
 	} else {
 		body := authBody{}
 		bodyBytes, err := ioutil.ReadAll(r.Body)
-		r.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+		log.Println(bodyBytes)
 		if err == nil {
 			err = json.Unmarshal(bodyBytes, &body)
+			r.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
 			if err == nil {
 				token := body.Token
 				if auth.VerifyToken(token) {
@@ -138,6 +139,16 @@ type loginBody struct {
 
 type loginResponse struct {
 	Token string `json:"token"`
+}
+
+func validateRoute(w http.ResponseWriter, r *http.Request) {
+	if authorizeRequest(r) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(responses.OK))
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(responses.Unauthorized))
+	}
 }
 
 func authRoute(w http.ResponseWriter, r *http.Request) {
