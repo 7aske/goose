@@ -3,9 +3,11 @@ package deployer
 import (
 	"../config"
 	"../instance"
+	"./utils"
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -18,9 +20,12 @@ func (d *Type) Update(inst *instance.JSON) error {
 	// TODO check if already deployed
 	gitCmd := exec.Command("git", "-C", path.Join(config.Get().Deployer.AppRoot, inst.Name), "pull")
 	gitCmd.Stdin = nil
-	gitCmd.Stdout = os.Stdout
 	var errBuf bytes.Buffer
-	gitCmd.Stderr = &errBuf
+	wr, _ := utils.SetUpLog(config.Config.Deployer.LogRoot, inst.Name, "update_out", os.Stdout)
+	wre, _ := utils.SetUpLog(config.Config.Deployer.LogRoot, inst.Name, "update_err", os.Stderr)
+	gitCmd.Stdout = wr
+	mw := io.MultiWriter(wre, &errBuf)
+	gitCmd.Stderr = mw
 	if err := gitCmd.Run(); err != nil {
 		errStr := string(errBuf.Bytes())
 		_, _ = fmt.Fprintln(os.Stderr, errStr)

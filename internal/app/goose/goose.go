@@ -29,7 +29,7 @@ func New() {
 
 	err := setupDirs()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed setting up dirs ", err)
 	}
 
 	err = initInstanceFile()
@@ -39,14 +39,18 @@ func New() {
 
 	Deployer = deployer.New()
 
-	err = server.Listen(host, Config.Deployer.Port)
+	err = server.Listen(Config.Deployer.Hostname, Config.Deployer.Port)
 	if err != nil {
-		//log.Fatal(err)
+		log.Fatal(err)
 	}
 }
 
 func setupDirs() error {
-	err := utils.MakeDirIfNotExist(Config.Deployer.Root)
+	err := utils.MakeDirIfNotExist(Config.Deployer.LogRoot)
+	if err != nil {
+		return err
+	}
+	err = utils.MakeDirIfNotExist(Config.Deployer.Root)
 	if err != nil {
 		return err
 	}

@@ -17,6 +17,7 @@ func Route(router *mux.Router) {
 	KillRoute(appRouter)
 	UpdateRoute(appRouter)
 	SettingsRoute(appRouter)
+	LogRoute(appRouter)
 }
 
 func writeErrorResponse(writer http.ResponseWriter, err error) {

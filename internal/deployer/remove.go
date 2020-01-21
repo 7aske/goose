@@ -11,5 +11,9 @@ func (d *Type) Remove(inst instance.JSON) error {
 	if err != nil {
 		return err
 	}
+	err = os.RemoveAll(path.Join(Config.Deployer.LogRoot, inst.Name))
+	if err != nil {
+		return err
+	}
 	return d.removeInstanceJSON(inst)
 }

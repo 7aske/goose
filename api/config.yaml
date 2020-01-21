@@ -7,7 +7,7 @@ deployer:
   hostname: 127.0.0.1
 
 auth:
-  enable: true
+  enable: false
   secret: secret
   user: admin
   pass: admin

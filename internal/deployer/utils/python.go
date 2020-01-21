@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"log"
+	"../../config"
 	"os"
 	"os/exec"
 	"path"
@@ -35,10 +35,12 @@ func InstallPythonRequirements(pth string) error {
 	py := exec.Command("env", "python3", "-m", "pip", "install", "-r", "requirements.txt")
 	py.Env = os.Environ()
 	SourceVenv(pth, &py.Env)
-	log.Println(py.Env)
-	py.Dir = pth
+
+	wr, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(pth), "install_out", os.Stdout)
+	wre, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(pth), "install_err", os.Stderr)
+	py.Stdout = wr
+	py.Stderr = wre
 	py.Stdin = nil
-	py.Stdout = os.Stdout
-	py.Stderr = os.Stderr
+	py.Dir = pth
 	return py.Run()
 }

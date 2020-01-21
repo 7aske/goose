@@ -1,13 +1,16 @@
 package utils
 
 import (
+	"../../config"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 )
 
 type PackageJsonRequired struct {
@@ -75,9 +78,19 @@ func RunNpmScript(script []string, root string, env []string) error {
 	npm := exec.Command("npm", script...)
 	npm.Dir = root
 	npm.Env = append(npm.Env, env...)
-	npm.Stdout = os.Stdout
+	var rtype string
+	if len(script) > 1 {
+		rtype = script[1]
+	} else {
+		rtype = script[0]
+	}
 	var errBuf bytes.Buffer
-	npm.Stderr = &errBuf
+	wr, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(root), rtype+"_out", os.Stdout)
+	wre, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(root), rtype+"_out", os.Stderr)
+	mw := io.MultiWriter(wre, &errBuf)
+	npm.Stdout = wr
+	npm.Stderr = mw
+
 	if err := npm.Run(); err != nil {
 		errStr := string(errBuf.Bytes())
 		_, _ = fmt.Fprintln(os.Stderr, errStr)
@@ -89,10 +102,20 @@ func StartNpmScript(script []string, root string, env []string) (*os.Process, er
 	npm := exec.Command("npm", script...)
 	npm.Dir = root
 	npm.Env = append(npm.Env, env...)
-	npm.Stdout = os.Stdout
+
 	var errBuf bytes.Buffer
-	npm.Stderr = &errBuf
-	npm.Stderr = os.Stderr
+	var rtype string
+	if len(script) > 1 {
+		rtype = script[1]
+	} else {
+		rtype = script[0]
+	}
+	wr, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(root), rtype+"_out", os.Stdout)
+	wre, _ := SetUpLog(config.Config.Deployer.LogRoot, path.Base(root), rtype+"_err", os.Stderr)
+	npm.Stdout = wr
+	mw := io.MultiWriter(wre, &errBuf)
+	npm.Stderr = mw
+
 	if err := npm.Start(); err != nil {
 		errStr := string(errBuf.Bytes())
 		_, _ = fmt.Fprintln(os.Stderr, errStr)

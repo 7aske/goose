@@ -39,11 +39,15 @@ func (d *Type) runNode(inst instance.JSON) (*instance.Instance, error) {
 		inst.Port = uint(p)
 	}
 	node := exec.Command("node", dutils.GetPackageJsonMain(packageJsonPath))
+	wr, _ := dutils.SetUpLog(Config.Deployer.LogRoot, inst.Name, "run_out", os.Stdout)
+	wre, _ := dutils.SetUpLog(Config.Deployer.LogRoot, inst.Name, "run_err", os.Stderr)
+	node.Stdout = wr
+	node.Stderr = wre
+
 	node.Dir = inst.Root
 	node.Env = os.Environ()
 	node.Env = append(node.Env, fmt.Sprintf("PORT=%d", inst.Port))
-	node.Stdout = os.Stdout
-	node.Stderr = os.Stderr
+
 	err = node.Start()
 	if err != nil {
 		return nil, err
@@ -103,8 +107,12 @@ func (d *Type) runFlask(inst instance.JSON) (*instance.Instance, error) {
 	python.Env = os.Environ()
 	python.Env = append(python.Env, fmt.Sprintf("FLASK_RUN_PORT=%d", inst.Port))
 	dutils.SourceVenv(inst.Root, &python.Env)
-	python.Stdout = os.Stdout
-	python.Stderr = os.Stderr
+
+	wr, _ := dutils.SetUpLog(Config.Deployer.LogRoot, inst.Name, "run_out", os.Stdout)
+	wre, _ := dutils.SetUpLog(Config.Deployer.LogRoot, inst.Name, "run_out", os.Stderr)
+	python.Stdout = wr
+	python.Stderr = wre
+
 	err := python.Start()
 	if err != nil {
 		return nil, err

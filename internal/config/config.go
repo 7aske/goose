@@ -28,6 +28,7 @@ var Config *Type = nil
 type Type struct {
 	Deployer struct {
 		AppRoot  string `yaml:"approot,omitempty"`
+		LogRoot  string `yaml:"logroot,omitempty"`
 		Root     string `yaml:"root,omitempty"`
 		Port     int    `yaml:"port"`
 		Hostname string `yaml:"hostname"`
@@ -97,6 +98,11 @@ func Parse() *Type {
 	if t.Deployer.AppRoot == "" {
 		t.Deployer.AppRoot = path.Join(t.Deployer.Root, "instances")
 		log.Println("deployer 'approot'  not set using default value - ", t.Deployer.AppRoot)
+	}
+
+	if t.Deployer.LogRoot == "" {
+		t.Deployer.LogRoot = path.Join(t.Deployer.Root, "logs")
+		log.Println("deployer 'logroot'  not set using default value - ", t.Deployer.LogRoot)
 	}
 
 	if t.Auth.User == "" {
