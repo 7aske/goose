@@ -98,7 +98,7 @@ func (d *Type) runPython(inst instance.JSON) (*instance.Instance, error) {
 }
 
 func (d *Type) runFlask(inst instance.JSON) (*instance.Instance, error) {
-	python := exec.Command(fmt.Sprintf("%s/venv/bin/flask", inst.Root), "run")
+	python := exec.Command(fmt.Sprintf("%s/venv/bin/flask", inst.Root), "run", "--host=0.0.0.0")
 	python.Dir = inst.Root
 	python.Env = os.Environ()
 	python.Env = append(python.Env, fmt.Sprintf("FLASK_RUN_PORT=%d", inst.Port))

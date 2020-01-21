@@ -21,10 +21,11 @@ func (d *Type) Deploy(inst *instance.JSON) error {
 	// TODO check if runner valid
 
 	repo, err := sutils.FixUrl(inst.Repo)
-
 	if err != nil {
 		return err
 	}
+
+	repo = strings.TrimRight(repo, "/")
 
 	inst.Root = path.Join(config.Get().Deployer.AppRoot, inst.Name)
 	if p, err := port.New(); err != nil {

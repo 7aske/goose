@@ -41,10 +41,14 @@ func ProxyListen(host string, port int) error {
 func proxyRoute(w http.ResponseWriter, r *http.Request) {
 	host, _, err := net.SplitHostPort(r.Host)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(responses.NotFound))
-		return
+		if !strings.HasSuffix(err.Error(), "missing port in address") {
+			log.Println(err)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(responses.NotFound))
+			return
+		} else {
+			host = r.Host
+		}
 	}
 
 	if host == config.Config.Deployer.Hostname {
@@ -58,6 +62,7 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fpath := r.URL.Path
+
 		if fpath == "/" {
 			fpath = "build/web/index.html"
 		} else {
