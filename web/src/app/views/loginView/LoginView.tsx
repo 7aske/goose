@@ -53,7 +53,7 @@ export default class LoginView extends React.Component<any, any> {
 						<div className="col m3 s12"/>
 						<div className="input-field col m6 s12">
 							<i className="material-icons prefix">lock</i>
-							<input onChange={this.onChange.bind(this)} id="pass" type="tel" className="validate"/>
+							<input onChange={this.onChange.bind(this)} id="pass" type="password" className="validate"/>
 							<label htmlFor="pass">Password</label>
 						</div>
 					</div>
