@@ -3,14 +3,16 @@ import node from "../assets/icons/node-js-brands.svg";
 import python from "../assets/icons/python-brands.svg";
 import react from "../assets/icons/react-brands.svg";
 import npm from "../assets/icons/npm-brands.svg";
+import flask from "../assets/icons/flask.png";
 
 export const getBackendIcon = (backend: string): string => {
 	switch (backend) {
 		case "npm":
 			return npm;
 		case "python":
-		case "flask":
 			return python;
+		case "flask":
+			return flask;
 		case "node":
 			return node;
 		case "react":

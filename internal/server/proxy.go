@@ -59,9 +59,9 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 
 		fpath := r.URL.Path
 		if fpath == "/" {
-			fpath = "web/index.html"
+			fpath = "build/web/index.html"
 		} else {
-			fpath = "web" + fpath
+			fpath = "build/web" + fpath
 		}
 
 		if r.Method == "GET" {

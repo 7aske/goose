@@ -13,8 +13,7 @@ import (
 )
 
 func (d *Type) Run(inst instance.JSON) (*instance.Instance, error) {
-	depl := instance.FromJSONStruct(inst)
-	if _, ok := GetRunningInstance(depl.Id); ok {
+	if _, ok := GetRunningInstanceById(inst.Id); ok {
 		return nil, errors.New("instance already running")
 	}
 	switch inst.Backend {
@@ -99,7 +98,31 @@ func (d *Type) runPython(inst instance.JSON) (*instance.Instance, error) {
 }
 
 func (d *Type) runFlask(inst instance.JSON) (*instance.Instance, error) {
-	return nil, errors.New("backend not implemented")
+	python := exec.Command(fmt.Sprintf("%s/venv/bin/flask", inst.Root), "run")
+	python.Dir = inst.Root
+	python.Env = os.Environ()
+	python.Env = append(python.Env, fmt.Sprintf("FLASK_RUN_PORT=%d", inst.Port))
+	dutils.SourceVenv(inst.Root, &python.Env)
+	python.Stdout = os.Stdout
+	python.Stderr = os.Stderr
+	err := python.Start()
+	if err != nil {
+		return nil, err
+	}
+	running := instance.FromJSONStruct(inst)
+
+	running.Pid = python.Process.Pid
+	running.SetProcess(python.Process)
+	running.LastRun = time.Now()
+	inst.LastRun = time.Now()
+	d.addInstance(running)
+	err = d.addInstanceJSON(inst)
+	if err != nil {
+		_ = running.Process().Kill()
+		return nil, errors.New("unable to save instance metadata json")
+	}
+	go AddExitListener(running, d)
+	return running, nil
 }
 
 func (d *Type) runWeb(inst instance.JSON) (*instance.Instance, error) {

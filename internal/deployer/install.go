@@ -67,7 +67,12 @@ func (d *Type) installPython(inst *instance.JSON) error {
 }
 
 func (d *Type) installFlask(inst *instance.JSON) error {
-	return errors.New("backend not implemented")
+	err := dutils.SetupPythonVenv(inst.Root)
+	if err != nil {
+		return err
+	}
+	err = dutils.InstallPythonRequirements(inst.Root)
+	return err
 }
 
 func (d *Type) installWeb(inst *instance.JSON) error {

@@ -7,6 +7,10 @@ default_recipe: build
 build: $(main)
 	go build  -o $(out)/goose $(main)
 
+.PHONY: build-static
+build-static: $(main)
+	go build -a -ldflags '-w -extldflags "-static"' -o $(out)/goose $(main)
+
 run:
 	go run $(main)
 
