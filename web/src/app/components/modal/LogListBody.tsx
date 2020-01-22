@@ -1,8 +1,6 @@
 import * as React from "react";
 import axios from "axios";
 import ModalDialog from "./ModalDialog";
-import { ReactComponent } from "*.svg";
-
 
 type LogListBodyProps = {
 	instanceName: string;
@@ -31,7 +29,7 @@ export default class LogListBody extends React.Component<LogListBodyProps, LogLi
 		});
 	}
 
-	openDetailedModal(name:string ,type:string) {
+	openDetailedModal(name: string, type: string) {
 		this.props.openDetailedModal(name, type);
 	}
 
@@ -39,8 +37,12 @@ export default class LogListBody extends React.Component<LogListBodyProps, LogLi
 		return (
 			<div>
 				<ul className="collection">
-					{this.state.logList.map((item, i) => <LogListItem openDetailedModal={this.openDetailedModal.bind(this)} key={i} name={this.props.instanceName}
-																	  type={item}/>)}
+					{this.state.logList.map((item, i) => {
+						return <LogListItem openDetailedModal={this.openDetailedModal.bind(this)}
+											key={i}
+											name={this.props.instanceName}
+											type={item}/>;
+					})}
 				</ul>
 			</div>
 		);
@@ -63,8 +65,9 @@ class LogListItem extends React.Component<any, any> {
 		return (
 			<li className="collection-item">
 				<ModalDialog ref={this.modalRef} title={this.props.name + " " + this.props.type}/>
-				<div>{this.props.type}<a href="#" onClick={this.openDetailedModal.bind(this)}
-										 className="secondary-content"><i className="material-icons">send</i></a>
+				<div onClick={this.openDetailedModal.bind(this)} style={{cursor: "pointer"}}
+					 className="blue-text popout">
+					{this.props.type}
 				</div>
 			</li>
 		);

@@ -41,7 +41,7 @@ export default class LoginView extends React.Component<any, any> {
 		return (
 			<div className="row container">
 				<form className="col s12">
-					<div className="row">
+					<div className="row pt-5">
 						<div className="col m3 s12"/>
 						<div className="input-field col m6 s12">
 							<i className="material-icons prefix">account_circle</i>
@@ -58,7 +58,7 @@ export default class LoginView extends React.Component<any, any> {
 						</div>
 					</div>
 					<button onClick={this.login.bind(this)}
-							className="waves-light btn cyan"><i
+							className="waves-light btn black"><i
 						className="material-icons right">arrow_right</i>Login
 					</button>
 				</form>

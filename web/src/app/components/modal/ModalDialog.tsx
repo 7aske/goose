@@ -66,20 +66,22 @@ class ModalDialog extends React.Component {
 	render() {
 		return (
 			<div ref={this.modalRef} className="modal" style={styleSheet}>
-				<div className="p-4 black white-text">
-					<h4 id="modal-question-title" className="mb-0">{this.state.title}</h4>
-				</div>
+				{this.state.title !== "" ?
+					<div className="p-4 black white-text">
+						<h4 id="modal-question-title" className="mb-0">{this.state.title}</h4>
+					</div> : ""}
 				<div className="modal-content">
 					<div id="modal-question-body">
 						{this.state.body}
 					</div>
 				</div>
-				<div className="modal-footer">
+				<div className="modal-footer pr-3 mb-2">
 					<button id="btn-modal-reject" onClick={this.onCancelHandler.bind(this)}
-							className="waves-green btn red" style={btnStyle}>Close
+							className="btn-floating red" style={btnStyle}><i className="material-icons">cancel</i>
 					</button>
 					{this.props.onConfirm ? <button id="btn-modal-confirm" onClick={this.onConfirmHandler.bind(this)}
-													className="waves-green btn" style={btnStyle}>Confirm
+													className="btn-floating black" style={btnStyle}>
+						<i className="material-icons">check_circle</i>
 					</button> : ""}
 
 				</div>
@@ -88,7 +90,7 @@ class ModalDialog extends React.Component {
 }
 
 const btnStyle: CSSProperties = {
-	width: 100,
+	// width: 100,
 	marginLeft: 10,
 };
 

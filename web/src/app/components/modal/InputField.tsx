@@ -2,6 +2,7 @@ import * as React from "react";
 import { ChangeEvent, RefObject } from "react";
 
 export type Field = {
+	icon?: string;
 	display_name: string;
 	type: string;
 	name: string;
@@ -10,7 +11,7 @@ export type Field = {
 
 
 type InputFieldProps = {
-	field: Field, onInputChange: Function
+	field: Field, onInputChange: Function,
 };
 type InputFieldState = {
 	name: string;
@@ -20,6 +21,7 @@ type InputFieldState = {
 
 export default class InputField extends React.Component<InputFieldProps, InputFieldState> {
 	ref: RefObject<HTMLInputElement>;
+
 	constructor(props: any) {
 		super(props);
 		this.ref = React.createRef();
@@ -27,7 +29,7 @@ export default class InputField extends React.Component<InputFieldProps, InputFi
 	}
 
 	componentDidMount(): void {
-		if (this.ref.current){
+		if (this.ref.current) {
 			this.ref.current.dispatchEvent(new Event("focus"));
 		}
 	}
@@ -42,7 +44,8 @@ export default class InputField extends React.Component<InputFieldProps, InputFi
 
 	render() {
 		return (<div className="row">
-			<div className="input-field col s6">
+			<div className="input-field col s12 m6">
+				<i className="material-icons black-text prefix">{this.props.field.icon}</i>
 				<input onChange={this.onChangeHandler.bind(this)}
 					   ref={this.ref}
 					   onKeyUp={this.onKeyUpHandler.bind(this)}

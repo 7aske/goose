@@ -6,7 +6,7 @@ import M, { Collapsible } from "materialize-css";
 import { RefObject } from "react";
 import ModalDialog, { ModalPayload } from "../../components/modal/ModalDialog";
 import SettingsBody from "../../components/modal/SettingsBody";
-import {withRouter} from"react-router-dom";
+import { withRouter } from "react-router-dom";
 
 type InstancesViewProps = {};
 type InstancesViewState = {
@@ -18,6 +18,7 @@ class InstancesView extends React.Component<any, any> {
 	deployModalRef: RefObject<ModalDialog>;
 	instancesCollapsible?: Collapsible;
 	state: InstancesViewState;
+
 	constructor(props: InstancesViewProps) {
 		super(props);
 		this.state = {instances: []};
@@ -85,16 +86,19 @@ class InstancesView extends React.Component<any, any> {
 	openDeployDialog() {
 		if (this.deployModalRef.current) {
 			const comp = <SettingsBody fields={[{
+				icon: "insert_link",
 				name: "repo",
 				value: "",
 				display_name: "Repo",
 				type: "text",
 			}, {
+				icon: "home",
 				name: "hostname",
 				value: "",
 				display_name: "Host",
 				type: "text",
 			}, {
+				icon: "weekend",
 				name: "backend",
 				value: "",
 				display_name: "Backend",
@@ -129,20 +133,22 @@ class InstancesView extends React.Component<any, any> {
 	render() {
 		return (
 			<div>
-				<ModalDialog ref={this.deployModalRef} title="Deploy Instance"
-							 onConfirm={this.instanceDeploy.bind(this)}/>
-				<div className="p-3 left-align">
-					<button onClick={this.openDeployDialog.bind(this)}
-							className="waves-light btn cyan btn ml-2 mr-2"><i
-						className="material-icons right">cloud_upload</i>Deploy
-					</button>
+				<div className="container">
+					<ModalDialog ref={this.deployModalRef} title="Deploy Instance"
+								 onConfirm={this.instanceDeploy.bind(this)}/>
+					<div className="pl-0 pt-3 pb-3 left-align">
+						<button onClick={this.openDeployDialog.bind(this)}
+								className="btn-floating black btn mr-2"><i
+							className="material-icons right">cloud_upload</i>
+						</button>
+					</div>
+					<ul ref={this.ref} className="collapsible">
+						{this.state.instances.map((inst, i) => <InstanceItem
+							triggerRefresh={this.handleRefresh.bind(this)}
+							key={i} inst={inst}
+							running={inst.pid !== undefined}/>)}
+					</ul>
 				</div>
-				<ul ref={this.ref} className="collapsible">
-					{this.state.instances.map((inst, i) => <InstanceItem
-						triggerRefresh={this.handleRefresh.bind(this)}
-						key={i} inst={inst}
-						running={inst.pid !== undefined}/>)}
-				</ul>
 			</div>
 		);
 	};
