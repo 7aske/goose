@@ -8,15 +8,15 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"strconv"
 )
 
 type SettingsBody struct {
 	Id       string `json:"id"`
 	Name     string `json:"name"`
 	Settings struct {
-		Port     int `json:"port"`
+		Port     string `json:"port"`
 		Hostname string `json:"hostname"`
 		Backend  string `json:"backend"`
 	} `json:"settings"`
@@ -42,6 +42,7 @@ func settingsPut(writer http.ResponseWriter, req *http.Request) {
 
 	err = json.Unmarshal(jsonBytes, &body)
 	if err != nil {
+		log.Println(err)
 		writeErrorResponse(writer, errors.New("invalid arguments"))
 		return
 	}
@@ -62,8 +63,8 @@ func settingsPut(writer http.ResponseWriter, req *http.Request) {
 			return
 		} else {
 			m := make(map[string]string)
-			if body.Settings.Port != 0 {
-				m["port"] = strconv.Itoa(body.Settings.Port)
+			if body.Settings.Port != "" {
+				m["port"] = body.Settings.Port
 			}
 			if body.Settings.Hostname != "" {
 				m["hostname"] = body.Settings.Hostname

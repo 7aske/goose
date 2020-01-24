@@ -90,6 +90,7 @@ export default class instanceItem extends React.Component<InstanceItemProps, ins
 	}
 
 	instanceSettings(payload: ModalPayload | undefined) {
+		console.log(this.state.inst.name, payload);
 		axios.put("/api/app/settings", {name: this.state.inst.name, settings: payload}).then(res => {
 			if (res.status === 200) {
 				M.toast({html: res.data.message, classes: "rounded green"});
