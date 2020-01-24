@@ -38,9 +38,5 @@ func (d *Type) Update(inst *instance.JSON) error {
 		return err
 	}
 
-	err = saveInstance(*inst)
-	if err != nil {
-		return err
-	}
-	return nil
+	return saveInstance(*inst)
 }

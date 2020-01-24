@@ -4,8 +4,7 @@ import (
 	"../instance"
 	dutils "./utils"
 	"errors"
-	"fmt"
-	"os"
+	"log"
 	"path"
 )
 
@@ -26,17 +25,7 @@ func (d *Type) Install(inst *instance.JSON) error {
 }
 
 func (d *Type) installNode(inst *instance.JSON) error {
-	err := dutils.VerifyPackageJson(path.Join(inst.Root, "package.json"))
-	if err != nil {
-		return err
-	}
-	err = dutils.RunNpmScript([]string{"install"}, inst.Root, []string{})
-	err = saveInstance(*inst)
-	if err != nil {
-		return err
-	}
-	return nil
-
+	return d.installNpm(inst)
 }
 
 func (d *Type) installNpm(inst *instance.JSON) error {
@@ -52,14 +41,11 @@ func (d *Type) installNpm(inst *instance.JSON) error {
 	}
 
 	if err = dutils.VerifyPackageJsonFieldList(packageJsonPath, []string{"build"}); err != nil {
-		_, _ = fmt.Fprint(os.Stderr, "package.json missing build 'script'")
+		log.Println("package.json missing build 'script'")
+		return nil
 	} else {
-		err = dutils.RunNpmScript([]string{"run", "build"}, inst.Root, []string{})
-		if err != nil {
-			return err
-		}
+		return dutils.RunNpmScript([]string{"run", "build"}, inst.Root, []string{})
 	}
-	return nil
 }
 
 func (d *Type) installPython(inst *instance.JSON) error {
@@ -71,8 +57,7 @@ func (d *Type) installFlask(inst *instance.JSON) error {
 	if err != nil {
 		return err
 	}
-	err = dutils.InstallPythonRequirements(inst.Root)
-	return err
+	return dutils.InstallPythonRequirements(inst.Root)
 }
 
 func (d *Type) installWeb(inst *instance.JSON) error {
