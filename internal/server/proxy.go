@@ -50,6 +50,11 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 			host = r.Host
 		}
 	}
+	rootHostParts := strings.Split(config.Config.Router.RootHost, ".")
+	rootHost := ""
+	if len(rootHostParts) == 3 {
+		rootHost = strings.Join(rootHostParts[1:], ".")
+	}
 
 	if host == config.Config.Deployer.Hostname {
 		p := strconv.Itoa(config.Config.Deployer.Port)
@@ -89,6 +94,24 @@ func proxyRoute(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(responses.Unauthorized))
 			return
+		}
+	} else if host == rootHost {
+		if inst, ok := deployer.GetRunningInstanceByHost(config.Config.Router.RootHost); ok {
+			instPort := strconv.Itoa(int(inst.Port))
+			u, err := url.Parse("http://" + net.JoinHostPort(host, instPort))
+			if err == nil {
+				log.Println("proxied request", inst.Hostname, "->", inst.Name, inst.Port)
+				proxy := httputil.NewSingleHostReverseProxy(u)
+				proxy.ServeHTTP(w, r)
+			} else {
+				log.Println("url parsing failed for", inst.Name)
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(responses.BadRequest))
+			}
+		} else {
+			log.Println("no instance found")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(responses.NotFound))
 		}
 	} else if inst, ok := deployer.GetRunningInstanceByHost(host); ok {
 		instPort := strconv.Itoa(int(inst.Port))

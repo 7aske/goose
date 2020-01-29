@@ -24,24 +24,24 @@ auth:
 
 var Config *Type = nil
 
-
 type Type struct {
 	Deployer struct {
-		AppRoot  string `yaml:"approot,omitempty"`
-		LogRoot  string `yaml:"logroot,omitempty"`
-		Root     string `yaml:"root,omitempty"`
-		Port     int    `yaml:"port"`
-		Hostname string `yaml:"hostname"`
+		AppRoot  string `yaml:"approot,omitempty"` // Root directory for instances
+		LogRoot  string `yaml:"logroot,omitempty"` // Root directory for logs
+		Root     string `yaml:"root,omitempty"`    // Root directory for instances and logs
+		Port     int    `yaml:"port"`              // Port on which deployer server is running
+		Hostname string `yaml:"hostname"`          // Hostname for which proxy will redirect requests to the deployer
 	}
 	Router struct {
-		Port     int    `yaml:"port"`
-		Hostname string `yaml:"hostname"`
+		Port     int    `yaml:"port"`               // Port at which proxy is running (80 for HTTP)
+		Hostname string `yaml:"hostname"`           // IP on which the proxy server listens to (0.0.0.0 to make server public)
+		RootHost string `yaml:"rootHost,omitempty"` // Redirects root domain request to this sub-domain
 	}
 	Auth struct {
-		Enable bool   `yaml:"enable"`
-		Secret string `yaml:"secret"`
-		User   string `yaml:"user"`
-		Pass   string `yaml:"pass"`
+		Enable bool   `yaml:"enable"` // Enable authenticating requests with JWT tokens
+		Secret string `yaml:"secret"` // Secret for generating JWT tokens
+		User   string `yaml:"user"`   // Deployer username
+		Pass   string `yaml:"pass"`   // Deployer password
 	}
 }
 
@@ -126,6 +126,11 @@ func Parse() *Type {
 
 	if t.Deployer.Port == t.Router.Port {
 		log.Fatal("deployer and router ports cannot be same", t.Deployer.Port)
+	}
+
+	if t.Router.RootHost == "" {
+		t.Router.RootHost = t.Deployer.Hostname
+		log.Println("router   'rootHost' not set using default value - ", t.Router.RootHost)
 	}
 
 	Config = t
